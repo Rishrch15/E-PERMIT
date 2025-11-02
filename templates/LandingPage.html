@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>E-Permit Request Application</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+        main {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            background-color: #060e33;
+            color: var(--bs-body-color);
+            border-right: 1px solid var(--bs-border-color);
+        }
+        .nav-link.active {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+
+        .content-area {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: transparent; 
+        }
+        .form-container {
+            background-color: transparent;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 900px;
+            margin: 0 auto; 
+        }
+        h3 {
+            text-align: center;
+            color: #4e54c8;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        h4 {
+            color: #0d6efd; 
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 5px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .dynamic-page {
+            display: none;
+            width: 100%;
+        }
+        .dynamic-page.active {
+            display: block;
+        }
+        .form-section {
+            display: none;
+            padding-top: 10px;
+        }
+        .form-section.active {
+            display: block;
+        }
+        .form-group-custom {
+            margin-bottom: 1rem;
+        }  
+        .table-responsive {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<main>
+    <div class="d-flex flex-column flex-shrink-0 p-3 sidebar" style="background-color: #060e33;">
+        <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none" onclick="showPage('newRequest')">
+            <i class="bi bi-briefcase-fill me-2 fs-4"></i>
+            <span class="fs-4">e-Permit</span>
+        </a>
+        <hr>
+        <ul class="nav nav-pills flex-column mb-auto" id="sidebarNav">
+            <li class="nav-item">
+                <a href="#" class="nav-link active" data-page="newRequest">
+                    <i class="bi bi-file-earmark-text-fill me-2"></i>
+                    New Request
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link text-white" data-page="viewPending">
+                    <i class="bi bi-card-checklist me-2"></i>
+                    View Pending
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link text-white" data-page="dashboard">
+                    <i class="bi bi-archive-fill me-2"></i>
+                    Dashboard
+                </a>
+            </li>
+        </ul>
+        <hr>
+        <div class="dropdown">
+            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="https://avatars.githubusercontent.com/u/146943747?v=4" alt="" width="32" height="32" class="rounded-circle me-2">
+                <strong id="loggedUserNameDisplay">User 7194</strong>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+                <li><a class="dropdown-item" href="#" data-page="profile">Profile</a></li>
+                <li><a class="dropdown-item" href="#" data-page="settings">Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{{ url_for('home') }}" onclick="confirmSignOut(event)">Sign out</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="content-area">
+        
+        <div id="newRequest" class="dynamic-page active">
+            <div class="form-container" style="max-width: 650px;"> 
+                <h3>Online Permit Request</h3>
+                
+                <form method="post" name="google-sheet" id="permitForm">
+
+                    <div class="form-group-custom">
+                        <label for="requestType" class="form-label">Select Request Type</label>
+                        <select id="requestType" name="Request Type" class="form-select" onchange="toggleFormSection(this.value)" required>
+                            <option value="">-- Choose a Request Type --</option>
+                            <option value="Borrow">Permit to Borrow</option>
+                            <option value="Transfer">Permit to Transfer</option>
+                        </select>
+                    </div>
+
+                    <div id="borrowSection" class="form-section">
+                        <h4><i class="bi bi-box-seam-fill me-2"></i>Permit to Borrow Details</h4>
+                        <div class="row">
+                            <div class="col-md-5 form-group-custom">
+                                <label for="borrowItem" class="form-label">Item to Borrow</label>
+                                <select id="borrowItem" name="Item to Borrow" class="form-select" data-required-group="borrow">
+                                    <option value="">Select Item</option>
+                                    <option value="Projector A">Projector</option>
+                                    <option value="Laptop - Dept 1">Extension</option>
+                                    <option value="Extension Cord">Table</option>
+                                    <option value="Hand Tools">Chair</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 form-group-custom">
+                                <label for="borrowQuantity" class="form-label">Quantity</label>
+                                <input type="number" id="borrowQuantity" name="Borrow Quantity" class="form-control" min="1" max="99" value="1" data-required-group="borrow" required>
+                            </div>
+                            <div class="col-md-4 form-group-custom">
+                                <label for="borrowDate" class="form-label">Date Needed</label>
+                                <input type="date" id="borrowDate" name="Date Needed" class="form-control" data-required-group="borrow">
+                            </div>
+                        </div>
+                        <div class="form-group-custom">
+                            <label for="borrowEvent" class="form-label">Event Name / Purpose</label>
+                            <input type="text" id="borrowEvent" name="Event / Purpose" class="form-control" placeholder="e.g., Q3 Sales Presentation, Training Session" data-required-group="borrow">
+                        </div>
+                        <div class="form-group-custom">
+                            <label for="borrowLocation" class="form-label">Usage Location</label>
+                            <select id="borrowLocation" name="Usage Location" class="form-select" data-required-group="borrow">
+                                <option value="">Select Location</option>
+                                <option value="Conference Room A">Conference Room A</option>
+                                <option value="Training Room 2">Training Room 2</option>
+                                <option value="Off-Site - Hotel Grand">Off-Site - Hotel Grand</option>
+                                <option value="Break Room">Employee Break Room</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="transferSection" class="form-section">
+                        <h4><i class="bi bi-arrows-expand me-2"></i>Permit to Transfer Details</h4>
+                        <div class="row">
+                            <div class="col-md-8 form-group-custom">
+                                <label for="transferEquipment" class="form-label">Equipment to Transfer</label>
+                                <select id="transferEquipment" name="Equipment to Transfer" class="form-select" data-required-group="transfer">
+                                    <option value="">Select Equipment</option>
+                                    <option value="Desktop PC Unit">Desktop PC Unit</option>
+                                    <option value="Office Desk">Office Desk</option>
+                                    <option value="Filing Cabinet">Filing Cabinet (4-Drawer)</option>
+                                    <option value="Printer">Network Printer</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 form-group-custom">
+                                <label for="transferQuantity" class="form-label">Quantity</label>
+                                <input type="number" id="transferQuantity" name="Transfer Quantity" class="form-control" min="1" max="99" value="1" data-required-group="transfer">
+                            </div>
+                        </div>
+                        <div class="form-group-custom">
+                            <label for="transferDate" class="form-label">Scheduled Transfer Date</label>
+                            <input type="date" id="transferDate" name="Scheduled Transfer Date" class="form-control" data-required-group="transfer" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 form-group-custom">
+                                <label for="transferFrom" class="form-label">Transfer From Location</label>
+                                <select id="transferFrom" name="Transfer From" class="form-select" data-required-group="transfer">
+                                    <option value="">Select Origin</option>
+                                    <option value="Warehouse Main">OVAL</option>
+                                    <option value="Admin Office">Admin Office</option>
+                                    <option value="IT Server Room">BLDG 1</option>
+                                    <option value="HR Records">HPSB</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 form-group-custom">
+                                <label for="transferTo" class="form-label">Transfer To Location</label>
+                                <select id="transferTo" name="Transfer To" class="form-select" data-required-group="transfer">
+                                    <option value="">Select Destination</option>
+                                    <option value="Factory Floor 1">OVAL</option>
+                                    <option value="Marketing Dept">Admin Office</option>
+                                    <option value="Security Gate">BLDG 1</option>
+                                    <option value="Storage Annex">HPSB</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 mt-4" name="submit">
+                        <i class="bi bi-send-fill me-2"></i>
+                        Submit Request
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div id="viewPending" class="dynamic-page">
+            <div class="form-container">
+                <h3><i class="bi bi-card-checklist me-2"></i>View Pending Requests</h3>
+
+                <div class="row g-3 mb-3 align-items-center">
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" id="pendingSearch" class="form-control" placeholder="Search by Item or Event..." onkeyup="filterTable('pendingTable', this.value)">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-select" id="pendingSort" onchange="sortData('pendingTable', this.value)">
+                            <option value="date-desc">Sort by Date (Newest)</option>
+                            <option value="date-asc">Sort by Date (Oldest)</option>
+                            <option value="type-asc">Sort by Request Type</option>
+                        </select>
+                    </div>
+            
+                </div>
+
+        <div id="dashboard" class="dynamic-page">
+            <div class="form-container">
+                <h3><i class="bi bi-archive-fill me-2"></i>Request Dashboard (History)</h3>
+
+                <div class="row g-3 mb-3 align-items-center">
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" id="historySearch" class="form-control" placeholder="Search by Item, Event, or Status..." onkeyup="filterTable('historyTable', this.value)">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-select" id="historySort" onchange="sortData('historyTable', this.value)">
+                            <option value="date-desc">Sort by Completion Date (Newest)</option>
+                            <option value="date-asc">Sort by Completion Date (Oldest)</option>
+                            <option value="status-asc">Sort by Status</option>
+                        </select>
+                    </div>
+                   
+        <div id="profile" class="dynamic-page">
+            <div class="form-container" style="max-width: 550px;">
+                <h3><i class="bi bi-person-fill me-2"></i>User Profile</h3>
+                <p class="text-muted text-center">Update your contact details and profile picture here.</p>
+
+                <div class="text-center mb-4">
+                    <img id="profilePicDisplay" 
+                         src="https://avatars.githubusercontent.com/u/146943747?v=4" 
+                         alt="User Profile Picture" 
+                         class="rounded-circle border border-5 border-light-subtle shadow-sm" 
+                         style="width: 120px; height: 120px; object-fit: cover;">
+                    
+                    <div class="mt-3">
+                        <label for="profilePicUpload" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-camera-fill me-2"></i>Change Picture
+                        </label>
+                        <input type="file" id="profilePicUpload" name="profilePic" accept="image/*" class="d-none">
+                    </div>
+                </div>
+                
+                <hr class="mb-4">
+
+                <form>
+                    <div class="mb-3">
+                        <label for="profileName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="profileName" value="User 7194" disabled>
+                        <div class="form-text">Name is pulled from the system (read-only).</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="profileDepartment" class="form-label">Department</label>
+                        <select class="form-select" id="profileDepartment">
+                            <option selected>CCIS SC</option>
+                            <option>USMO</option>
+                            <option>COMSOC</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="profileEmail" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="profileEmail" value="user.7194@company.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="profilePhone" class="form-label">Extension/Phone</label>
+                        <input type="tel" class="form-control" id="profilePhone" placeholder="e.g., 555-1234">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success w-100" onclick="alert('Profile Updated!')">
+                        <i class="bi bi-save-fill me-2"></i>Save Profile
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div id="settings" class="dynamic-page">
+            <div class="form-container" style="max-width: 500px;">
+                <h3><i class="bi bi-gear-fill me-2"></i>Settings</h3>
+                <p class="text-muted">Configure application preferences and notification options.</p>
+
+                <form>
+                    <h4 class="mt-4"><i class="bi bi-bell-fill me-2"></i>Notifications</h4>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" role="switch" id="emailNotifications" checked>
+                        <label class="form-check-label" for="emailNotifications">Email notification for status changes</label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" role="switch" id="pushNotifications">
+                        <label class="form-check-label" for="pushNotifications">Desktop push notifications (Browser must support)</label>
+                    </div>
+                    
+                    <h4 class="mt-4"><i class="bi bi-shield-lock-fill me-2"></i>Security</h4>
+                     <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="currentPassword" required>
+                    </div>
+                     <div class="mb-3">
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="newPassword" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-warning w-100 mt-3" onclick="alert('Settings Saved!')">
+                        <i class="bi bi-gear-fill me-2"></i>Save Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+<script>
+// --- CONFIGURATION ---
+// REPLACE THIS WITH YOUR ACTUAL GOOGLE APPS SCRIPT URL
+const scriptURL = 'https://script.google.com/macros/s/AKfycbwcGXVQhIUZBHeFIVTvhMNewv1lwjqREB_82Rkie-19WWY87E7koIbZhyO9Ya4MasaI/exec';
+const userName = "User 7194";
+// -----------------------
+
+
+// --- GLOBAL ELEMENTS ---
+const sidebarNav = document.getElementById('sidebarNav');
+const form = document.forms['google-sheet'];
+const borrowSection = document.getElementById('borrowSection');
+const transferSection = document.getElementById('transferSection');
+const requestTypeDropdown = document.getElementById('requestType');
+const borrowDateInput = document.getElementById('borrowDate');
+const transferDateInput = document.getElementById('transferDate');
+const loggedUserNameDisplay = document.getElementById('loggedUserNameDisplay');
+const profilePicUpload = document.getElementById('profilePicUpload');
+const profilePicDisplay = document.getElementById('profilePicDisplay');
+
+
+// --- CORE FUNCTIONS ---
+
+function confirmSignOut(e) {
+    e.preventDefault(); 
+    const isConfirmed = confirm("Are you sure you want to sign out?");
+    if (isConfirmed) {
+        window.location.href = "/"; 
+    }
+}
+
+function showPage(pageId) {
+    document.querySelectorAll('.dynamic-page').forEach(page => {
+        page.classList.remove('active');
+    });
+    const activePage = document.getElementById(pageId);
+    if (activePage) {
+        activePage.classList.add('active');
+    }
+
+    sidebarNav.querySelectorAll('.nav-link').forEach(navLink => {
+        navLink.classList.remove('active');
+        navLink.classList.add('text-white');
+    });
+    const activeLink = document.querySelector(`[data-page="${pageId}"]`);
+    if (activeLink && sidebarNav.contains(activeLink)) {
+         activeLink.classList.add('active');
+         activeLink.classList.remove('text-white');
+    }
+}
+
+function toggleFormSection(selectedValue) {
+    borrowSection.classList.remove('active');
+    transferSection.classList.remove('active');
+    
+    document.querySelectorAll('[data-required-group]').forEach(field => {
+        field.removeAttribute('required');
+    });
+
+    if (selectedValue === 'Borrow') {
+        borrowSection.classList.add('active');
+        document.querySelectorAll('#borrowSection [data-required-group="borrow"]').forEach(field => {
+            field.setAttribute('required', 'required');
+        });
+    } else if (selectedValue === 'Transfer') {
+        transferSection.classList.add('active');
+        document.querySelectorAll('#transferSection [data-required-group="transfer"]').forEach(field => {
+            field.setAttribute('required', 'required');
+        });
+    }
+}
+
+
+function filterTable(tableId, searchText) {
+    const filter = searchText.toUpperCase();
+    const table = document.getElementById(tableId);
+    const tr = table.getElementsByTagName("tr");
+    
+    for (let i = 1; i < tr.length; i++) {
+        let displayRow = false;
+        const tds = tr[i].getElementsByTagName("td");
+        for (let j = 0; j < tds.length; j++) {
+            const td = tds[j];
+            if (td) {
+                const txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    displayRow = true;
+                    break; 
+                }
+            }
+        }
+        tr[i].style.display = displayRow ? "" : "none";
+    }
+}
+
+function sortData(tableId, sortValue) {
+    console.log(`Sorting table ${tableId} by ${sortValue}`);
+    alert(`The table ${tableId} is being sorted by ${sortValue}. (Functionality placeholder)`);
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // 1. Initialize user data and date inputs
+    if (loggedUserNameDisplay) {
+        loggedUserNameDisplay.textContent = userName;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    if (borrowDateInput) {
+        borrowDateInput.min = today;
+    }
+    if (transferDateInput) {
+        transferDateInput.min = today;
+    }
+
+    // Show the New Request page by default
+    showPage('newRequest'); 
+    toggleFormSection(requestTypeDropdown.value); 
+
+
+    // --- Profile Picture Update Listener (NEW FEATURE) ---
+    if (profilePicUpload && profilePicDisplay) {
+        profilePicUpload.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Update the image source to the new file data URL
+                    profilePicDisplay.src = e.target.result;
+                    alert('Profile picture preview updated. Click "Save Profile" to submit other details.');
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    }
+
+    // 2. Dynamic Page Navigation Listener
+    document.querySelectorAll('.sidebar a, .dropdown-menu a[data-page]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault(); 
+            const pageId = this.getAttribute('data-page');
+            if (pageId) {
+                showPage(pageId);
+            }
+        });
+    });
+
+    // 3. Form Submission Handler (New Request)
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        const submitButton = form.querySelector('.btn');
+        
+        if (!form.checkValidity()) {
+            alert("Please ensure all required fields in the active section are filled out.");
+            return; 
+        }
+
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Submitting...';
+
+        const formData = new FormData(form);
+        formData.append('Name', userName); 
+
+        fetch(scriptURL, { method: 'POST', body: formData})
+            .then(response => {
+                alert(`✅ Submitted Successfully by ${userName}!`);
+                form.reset(); 
+                toggleFormSection(''); 
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="bi bi-send-fill me-2"></i>Submit Request';
+            })
+            .catch(error => {
+                console.error('Error!', error.message);
+                alert('Submission Failed. Check console for details.');
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="bi bi-send-fill me-2"></i>Submit Request';
+            });
+    });
+});
+</script>
+
+</body>
+</html>
