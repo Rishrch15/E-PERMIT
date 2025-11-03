@@ -5,15 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>E-Permit Request Application</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
+    <!-- Load Inter font for aesthetics (as per modern web guidelines) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
+        :root {
+            --sidebar-bg: #060e33;
+            --primary-color: #0d6efd;
+            --secondary-color: #4e54c8;
+        }
         body {
             min-height: 100vh;
             overflow-x: hidden;
-            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            font-family: 'Inter', sans-serif; /* Using Inter font */
         }
         main {
             display: flex;
@@ -23,40 +31,49 @@
         .sidebar {
             width: 280px;
             flex-shrink: 0;
-            background-color: #060e33;
-            color: var(--bs-body-color);
+            background-color: var(--sidebar-bg);
+            color: white;
             border-right: 1px solid var(--bs-border-color);
         }
         .nav-link.active {
-            background-color: #0d6efd !important;
+            background-color: var(--primary-color) !important;
             color: white !important;
+            font-weight: 600;
+            border-radius: 0.5rem; /* Added rounded corners for links */
+        }
+        .nav-link {
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
         .content-area {
             flex-grow: 1;
             padding: 20px;
-            background-color: transparent; 
+            background-color: #f4f7fa; /* Light background for contrast */
         }
         .form-container {
-            background-color: transparent;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            border-radius: 12px; /* Smoother rounded corners */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08); /* Stronger shadow */
             padding: 30px;
             max-width: 900px;
-            margin: 0 auto; 
+            margin: 0 auto;
         }
         h3 {
             text-align: center;
-            color: #4e54c8;
+            color: var(--secondary-color);
             margin-bottom: 20px;
-            font-weight: 600;
+            font-weight: 700;
         }
         h4 {
-            color: #0d6efd; 
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 5px;
-            margin-top: 20px;
-            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: 2px solid #e9ecef; /* Thicker, lighter border */
+            padding-bottom: 8px;
+            margin-top: 25px;
+            margin-bottom: 20px;
             font-weight: 600;
         }
         .dynamic-page {
@@ -74,20 +91,27 @@
             display: block;
         }
         .form-group-custom {
-            margin-bottom: 1rem;
-        }  
-        .table-responsive {
-            margin-top: 20px;
+            margin-bottom: 1.5rem; /* Increased spacing */
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .btn-primary:hover {
+            background-color: #0a58ca;
+            border-color: #0a58ca;
+            transform: translateY(-1px);
         }
     </style>
 </head>
 <body>
 
 <main>
-    <div class="d-flex flex-column flex-shrink-0 p-3 sidebar" style="background-color: #060e33;">
+    <div class="d-flex flex-column flex-shrink-0 p-3 sidebar">
         <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none" onclick="showPage('newRequest')">
-            <i class="bi bi-briefcase-fill me-2 fs-4"></i>
-            <span class="fs-4">e-Permit</span>
+            <i class="bi bi-briefcase-fill me-2 fs-4 text-warning"></i>
+            <span class="fs-4 fw-bold">e-Permit</span>
         </a>
         <hr>
         <ul class="nav nav-pills flex-column mb-auto" id="sidebarNav">
@@ -112,26 +136,27 @@
         </ul>
         <hr>
         <div class="dropdown">
+            <!-- Added ID for easier JS manipulation of the profile picture -->
             <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="https://avatars.githubusercontent.com/u/146943747?v=4" alt="" width="32" height="32" class="rounded-circle me-2">
-                <strong id="loggedUserNameDisplay">User 7194</strong>
+                <img id="profileAvatarDisplay" src="https://placehold.co/32x32/1a73e8/ffffff?text=U" alt="Profile Avatar" width="32" height="32" class="rounded-circle me-2 border border-light">
+                <strong id="loggedUserNameDisplay">{{ user.username }}</strong>
             </a>
             <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
                 <li><a class="dropdown-item" href="#" data-page="profile">Profile</a></li>
-                <li><a class="dropdown-item" href="#" data-page="settings">Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="{{ url_for('home') }}" onclick="confirmSignOut(event)">Sign out</a></li>
-            </ul>
+                <!-- Updated to use the custom modal for sign out confirmation -->
+            <li><a class="dropdown-item" href="#" onclick="confirmSignOut(event, '{{ url_for('logout') }}')">Sign out</a></li>            </ul>
         </div>
     </div>
 
     <div class="content-area">
         
+        <!-- New Request Page -->
         <div id="newRequest" class="dynamic-page active">
             <div class="form-container" style="max-width: 650px;"> 
                 <h3>Online Permit Request</h3>
                 
-                <form method="post" name="google-sheet" id="permitForm">
+                <form method="post" name="google-sheet" id="permitForm" class="needs-validation" novalidate>
 
                     <div class="form-group-custom">
                         <label for="requestType" class="form-label">Select Request Type</label>
@@ -140,6 +165,7 @@
                             <option value="Borrow">Permit to Borrow</option>
                             <option value="Transfer">Permit to Transfer</option>
                         </select>
+                        <div class="invalid-feedback">Please select a request type.</div>
                     </div>
 
                     <div id="borrowSection" class="form-section">
@@ -150,9 +176,9 @@
                                 <select id="borrowItem" name="Item to Borrow" class="form-select" data-required-group="borrow">
                                     <option value="">Select Item</option>
                                     <option value="Projector A">Projector</option>
-                                    <option value="Laptop - Dept 1">Extension</option>
-                                    <option value="Extension Cord">Table</option>
-                                    <option value="Hand Tools">Chair</option>
+                                    <option value="Laptop - Dept 1">Laptop</option>
+                                    <option value="Extension Cord">Extension Cord</option>
+                                    <option value="Hand Tools">Hand Tools</option>
                                 </select>
                             </div>
                             <div class="col-md-3 form-group-custom">
@@ -161,16 +187,16 @@
                             </div>
                             <div class="col-md-4 form-group-custom">
                                 <label for="borrowDate" class="form-label">Date Needed</label>
-                                <input type="date" id="borrowDate" name="Date Needed" class="form-control" data-required-group="borrow">
+                                <input type="date" id="borrowDate" name="Date Needed" class="form-control" data-required-group="borrow" required>
                             </div>
                         </div>
                         <div class="form-group-custom">
                             <label for="borrowEvent" class="form-label">Event Name / Purpose</label>
-                            <input type="text" id="borrowEvent" name="Event / Purpose" class="form-control" placeholder="e.g., Q3 Sales Presentation, Training Session" data-required-group="borrow">
+                            <input type="text" id="borrowEvent" name="Event / Purpose" class="form-control" placeholder="e.g., Q3 Sales Presentation, Training Session" data-required-group="borrow" required>
                         </div>
                         <div class="form-group-custom">
                             <label for="borrowLocation" class="form-label">Usage Location</label>
-                            <select id="borrowLocation" name="Usage Location" class="form-select" data-required-group="borrow">
+                            <select id="borrowLocation" name="Usage Location" class="form-select" data-required-group="borrow" required>
                                 <option value="">Select Location</option>
                                 <option value="Conference Room A">Conference Room A</option>
                                 <option value="Training Room 2">Training Room 2</option>
@@ -185,7 +211,7 @@
                         <div class="row">
                             <div class="col-md-8 form-group-custom">
                                 <label for="transferEquipment" class="form-label">Equipment to Transfer</label>
-                                <select id="transferEquipment" name="Equipment to Transfer" class="form-select" data-required-group="transfer">
+                                <select id="transferEquipment" name="Equipment to Transfer" class="form-select" data-required-group="transfer" required>
                                     <option value="">Select Equipment</option>
                                     <option value="Desktop PC Unit">Desktop PC Unit</option>
                                     <option value="Office Desk">Office Desk</option>
@@ -195,7 +221,7 @@
                             </div>
                             <div class="col-md-4 form-group-custom">
                                 <label for="transferQuantity" class="form-label">Quantity</label>
-                                <input type="number" id="transferQuantity" name="Transfer Quantity" class="form-control" min="1" max="99" value="1" data-required-group="transfer">
+                                <input type="number" id="transferQuantity" name="Transfer Quantity" class="form-control" min="1" max="99" value="1" data-required-group="transfer" required>
                             </div>
                         </div>
                         <div class="form-group-custom">
@@ -205,7 +231,7 @@
                         <div class="row">
                             <div class="col-md-6 form-group-custom">
                                 <label for="transferFrom" class="form-label">Transfer From Location</label>
-                                <select id="transferFrom" name="Transfer From" class="form-select" data-required-group="transfer">
+                                <select id="transferFrom" name="Transfer From" class="form-select" data-required-group="transfer" required>
                                     <option value="">Select Origin</option>
                                     <option value="Warehouse Main">OVAL</option>
                                     <option value="Admin Office">Admin Office</option>
@@ -215,7 +241,7 @@
                             </div>
                             <div class="col-md-6 form-group-custom">
                                 <label for="transferTo" class="form-label">Transfer To Location</label>
-                                <select id="transferTo" name="Transfer To" class="form-select" data-required-group="transfer">
+                                <select id="transferTo" name="Transfer To" class="form-select" data-required-group="transfer" required>
                                     <option value="">Select Destination</option>
                                     <option value="Factory Floor 1">OVAL</option>
                                     <option value="Marketing Dept">Admin Office</option>
@@ -234,6 +260,7 @@
             </div>
         </div>
 
+        <!-- View Pending Page -->
         <div id="viewPending" class="dynamic-page">
             <div class="form-container">
                 <h3><i class="bi bi-card-checklist me-2"></i>View Pending Requests</h3>
@@ -252,9 +279,45 @@
                             <option value="type-asc">Sort by Request Type</option>
                         </select>
                     </div>
-            
+                    <!-- Placeholder for the actual pending table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped" id="pendingTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Type</th>
+                                    <th>Item / Equipment</th>
+                                    <th>Date Needed</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Sample data, replace with dynamic data -->
+                                <tr>
+                                    <td>1001</td>
+                                    <td>Borrow</td>
+                                    <td>Projector</td>
+                                    <td>2024-11-10</td>
+                                    <td><span class="badge bg-warning text-dark">Pending Approval</span></td>
+                                    <td><button class="btn btn-sm btn-outline-danger" onclick="showMessage('Request Cancelled', 'Request 1001 has been cancelled.', 'danger')"><i class="bi bi-x-circle"></i> Cancel</button></td>
+                                </tr>
+                                <tr>
+                                    <td>1002</td>
+                                    <td>Transfer</td>
+                                    <td>Desktop PC Unit</td>
+                                    <td>2024-11-05</td>
+                                    <td><span class="badge bg-warning text-dark">Pending Approval</span></td>
+                                    <td><button class="btn btn-sm btn-outline-danger" onclick="showMessage('Request Cancelled', 'Request 1002 has been cancelled.', 'danger')"><i class="bi bi-x-circle"></i> Cancel</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-
+            </div>
+        </div>
+        
+        <!-- Dashboard Page -->
         <div id="dashboard" class="dynamic-page">
             <div class="form-container">
                 <h3><i class="bi bi-archive-fill me-2"></i>Request Dashboard (History)</h3>
@@ -273,53 +336,108 @@
                             <option value="status-asc">Sort by Status</option>
                         </select>
                     </div>
-                   
+                     <!-- Placeholder for the actual history table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped" id="historyTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Type</th>
+                                    <th>Item / Equipment</th>
+                                    <th>Date Completed</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Sample data, replace with dynamic data -->
+                                <tr>
+                                    <td>987</td>
+                                    <td>Borrow</td>
+                                    <td>Extension Cord</td>
+                                    <td>2024-10-25</td>
+                                    <td><span class="badge bg-success">Approved / Closed</span></td>
+                                    <td><button class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i> View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>988</td>
+                                    <td>Transfer</td>
+                                    <td>Filing Cabinet</td>
+                                    <td>2024-10-20</td>
+                                    <td><span class="badge bg-danger">Rejected</span></td>
+                                    <td><button class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i> View</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div> 
+            </div> 
+        </div> 
+        
+        <!-- Profile Page -->
         <div id="profile" class="dynamic-page">
             <div class="form-container" style="max-width: 550px;">
                 <h3><i class="bi bi-person-fill me-2"></i>User Profile</h3>
-                <p class="text-muted text-center">Update your contact details and profile picture here.</p>
-
-                <div class="text-center mb-4">
-                    <img id="profilePicDisplay" 
-                         src="https://avatars.githubusercontent.com/u/146943747?v=4" 
-                         alt="User Profile Picture" 
-                         class="rounded-circle border border-5 border-light-subtle shadow-sm" 
-                         style="width: 120px; height: 120px; object-fit: cover;">
-                    
-                    <div class="mt-3">
-                        <label for="profilePicUpload" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-camera-fill me-2"></i>Change Picture
-                        </label>
-                        <input type="file" id="profilePicUpload" name="profilePic" accept="image/*" class="d-none">
-                    </div>
-                </div>
+                <p class="text-muted text-center">Update your contact details and department below.</p>
                 
+                <div class="text-center mb-4">
+                    <!-- Large profile picture display -->
+                    <img id="profilePageDisplay" src="https://placehold.co/100x100/1a73e8/ffffff?text=U" alt="User Profile Picture" width="100" height="100" class="rounded-circle border border-4 border-primary shadow">
+                    <!-- Display user name from context data -->
+                    <h5 class="mt-2 text-primary">{{ user[0] if user else 'N/A' }}</h5> 
+                    <small class="text-muted">User ID: <span id="currentUserId">N/A</span></small>
+                </div>
+
                 <hr class="mb-4">
 
-                <form>
+                <form method="POST">
                     <div class="mb-3">
                         <label for="profileName" class="form-label">Full Name</label>
-                        <input type="text" class="form-control" id="profileName" value="User 7194" disabled>
+                        <!-- Assumes user[0] is the name -->
+                        <input type="text" class="form-control" id="profileName" value="{{ user[0] if user else '' }}" disabled>
                         <div class="form-text">Name is pulled from the system (read-only).</div>
                     </div>
-                    <div class="mb-3">
-                        <label for="profileDepartment" class="form-label">Department</label>
-                        <select class="form-select" id="profileDepartment">
-                            <option selected>CCIS SC</option>
-                            <option>USMO</option>
-                            <option>COMSOC</option>
-                        </select>
-                    </div>
+
                     <div class="mb-3">
                         <label for="profileEmail" class="form-label">Email Address</label>
-                        <input type="email" class="form-control" id="profileEmail" value="user.7194@company.com" required>
+                         <!-- Assumes user[1] is the email -->
+                        <input type="email" class="form-control" id="profileEmail" value="{{ user[1] if user else '' }}" disabled>
                     </div>
+
                     <div class="mb-3">
-                        <label for="profilePhone" class="form-label">Extension/Phone</label>
-                        <input type="tel" class="form-control" id="profilePhone" placeholder="e.g., 555-1234">
+                        <label for="profileDepartment" class="form-label">Department</label>
+                        <select class="form-select" id="profileDepartment" name="department">
+                            <option value="">Select Department</option>
+                            <!-- Assumes user[2] is the department -->
+                            <option {% if user and user[2]=='CCIS' %}selected{% endif %}>CCIS</option>
+                            <option {% if user and user[2]=='CLAS' %}selected{% endif %}>CLAS</option>
+                            <option {% if user and user[2]=='CBFS' %}selected{% endif %}>CBFS</option>
+                            <option {% if user and user[2]=='CITE' %}selected{% endif %}>CITE</option>
+                            <option {% if user and user[2]=='CCSE' %}selected{% endif %}>CCSE</option>
+                            <option {% if user and user[2]=='CTM' %}selected{% endif %}>CTM</option>
+                            <option {% if user and user[2]=='CGPP' %}selected{% endif %}>CGPP</option>
+                            <option {% if user and user[2]=='CTHM' %}selected{% endif %}>CTHM</option>
+                            <option {% if user and user[2]=='CCAPS' %}selected{% endif %}>CCAPS</option>
+                            <option {% if user and user[2]=='SOL' %}selected{% endif %}>SOL</option>
+                            <option {% if user and user[2]=='IN' %}selected{% endif %}>IN</option>
+                            <option {% if user and user[2]=='IP' %}selected{% endif %}>IP</option>
+                            <option {% if user and user[2]=='IIHS' %}selected{% endif %}>IIHS</option>
+                            <option {% if user and user[2]=='IA' %}selected{% endif %}>IA</option>
+                            <option {% if user and user[2]=='COE' %}selected{% endif %}>COE</option>
+                            <option {% if user and user[2]=='USMO' %}selected{% endif %}>USMO</option>
+                            <option {% if user and user[2]=='COMSOC' %}selected{% endif %}>COMSOC</option>
+                            <option {% if user and user[2]=='CCIS SC' %}selected{% endif %}>CCIS SC</option>
+                        </select>
                     </div>
-                    
-                    <button type="submit" class="btn btn-success w-100" onclick="alert('Profile Updated!')">
+
+                    <div class="mb-3">
+                        <label for="profilePhone" class="form-label">Contact Number</label>
+                         <!-- Assumes user[3] is the contact number -->
+                        <input type="tel" class="form-control" id="profilePhone" name="contact_number" 
+                                value="{{ user[3] if user and user[3] else '' }}" placeholder="e.g., 09123456789">
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
                         <i class="bi bi-save-fill me-2"></i>Save Profile
                     </button>
                 </form>
@@ -327,48 +445,46 @@
         </div>
 
         <div id="settings" class="dynamic-page">
-            <div class="form-container" style="max-width: 500px;">
-                <h3><i class="bi bi-gear-fill me-2"></i>Settings</h3>
-                <p class="text-muted">Configure application preferences and notification options.</p>
-
-                <form>
-                    <h4 class="mt-4"><i class="bi bi-bell-fill me-2"></i>Notifications</h4>
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" role="switch" id="emailNotifications" checked>
-                        <label class="form-check-label" for="emailNotifications">Email notification for status changes</label>
-                    </div>
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" role="switch" id="pushNotifications">
-                        <label class="form-check-label" for="pushNotifications">Desktop push notifications (Browser must support)</label>
-                    </div>
-                    
-                    <h4 class="mt-4"><i class="bi bi-shield-lock-fill me-2"></i>Security</h4>
-                     <div class="mb-3">
-                        <label for="currentPassword" class="form-label">Current Password</label>
-                        <input type="password" class="form-control" id="currentPassword" required>
-                    </div>
-                     <div class="mb-3">
-                        <label for="newPassword" class="form-label">New Password</label>
-                        <input type="password" class="form-control" id="newPassword" required>
-                    </div>
-
-                    <button type="submit" class="btn btn-warning w-100 mt-3" onclick="alert('Settings Saved!')">
-                        <i class="bi bi-gear-fill me-2"></i>Save Settings
-                    </button>
-                </form>
+            <div class="form-container">
+                <h3><i class="bi bi-gear-fill me-2"></i>Settings (Placeholder)</h3>
+                <p class="text-muted text-center">Future configurations and preferences will appear here.</p>
+                <div class="p-5 text-center bg-light rounded-lg">
+                    <i class="bi bi-tools fs-1 text-secondary"></i>
+                    <p class="mt-3">No user settings are currently configurable.</p>
+                </div>
             </div>
         </div>
-        
+
     </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<!-- Reusable Custom Modal -->
+<div class="modal fade" id="customModal" tabindex="-1" aria-labelledby="customModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-xl shadow-2xl">
+            <div class="modal-header bg-primary text-white p-3 rounded-top-lg" id="modalHeader">
+                <h5 class="modal-title fs-5" id="customModalLabel"><i class="bi bi-info-circle-fill me-2"></i>Message</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4" id="customModalBody">
+                <!-- Message content goes here -->
+            </div>
+            <div class="modal-footer p-3 justify-content-center" id="customModalFooter">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal" id="modalCloseBtn">Close</button>
+                <button type="button" class="btn btn-danger rounded-pill px-4 d-none" id="modalConfirmBtn">Yes, Proceed</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 <script>
 // --- CONFIGURATION ---
 // REPLACE THIS WITH YOUR ACTUAL GOOGLE APPS SCRIPT URL
 const scriptURL = 'https://script.google.com/macros/s/AKfycbwcGXVQhIUZBHeFIVTvhMNewv1lwjqREB_82Rkie-19WWY87E7koIbZhyO9Ya4MasaI/exec';
-const userName = "User 7194";
+const userName = "{{ user[0] if user else 'User' }}"; 
+const userId = "{{ session['user_id'] if session['user_id'] is defined else 'N/A' }}"; 
 // -----------------------
 
 
@@ -381,18 +497,95 @@ const requestTypeDropdown = document.getElementById('requestType');
 const borrowDateInput = document.getElementById('borrowDate');
 const transferDateInput = document.getElementById('transferDate');
 const loggedUserNameDisplay = document.getElementById('loggedUserNameDisplay');
-const profilePicUpload = document.getElementById('profilePicUpload');
-const profilePicDisplay = document.getElementById('profilePicDisplay');
 
+// Modal Elements
+const customModal = new bootstrap.Modal(document.getElementById('customModal'));
+const modalLabel = document.getElementById('customModalLabel');
+const modalBody = document.getElementById('customModalBody');
+const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
+const modalHeader = document.getElementById('modalHeader');
+
+
+// --- MODAL FUNCTIONS (Replaces alert() and confirm()) ---
+
+/**
+ * Shows a custom message modal.
+ * @param {string} title - The title of the modal.
+ * @param {string} body - The message body.
+ * @param {string} type - Optional: 'success', 'danger', 'warning', 'info' for styling.
+ */
+function showMessage(title, body, type = 'info') {
+    let iconClass;
+    let headerClass;
+    switch (type) {
+        case 'success':
+            iconClass = 'bi-check-circle-fill';
+            headerClass = 'bg-success';
+            break;
+        case 'danger':
+            iconClass = 'bi-x-octagon-fill';
+            headerClass = 'bg-danger';
+            break;
+        case 'warning':
+            iconClass = 'bi-exclamation-triangle-fill';
+            headerClass = 'bg-warning text-dark';
+            break;
+        default:
+            iconClass = 'bi-info-circle-fill';
+            headerClass = 'bg-primary';
+    }
+
+    modalHeader.className = `modal-header p-3 rounded-top-lg ${headerClass}`;
+    modalLabel.innerHTML = `<i class="${iconClass} me-2"></i>${title}`;
+    modalBody.innerHTML = `<p class="mb-0">${body}</p>`;
+    
+    modalConfirmBtn.classList.add('d-none');
+    modalCloseBtn.textContent = 'Close';
+    customModal.show();
+}
+
+/**
+ * Shows a confirmation modal.
+ * @param {string} title - The title of the modal.
+ * @param {string} body - The question body.
+ * @param {function} callback - Function to execute if confirmed.
+ */
+function showConfirm(title, body, callback) {
+    modalHeader.className = `modal-header p-3 rounded-top-lg bg-warning text-dark`;
+    modalLabel.innerHTML = `<i class="bi bi-question-circle-fill me-2"></i>${title}`;
+    modalBody.innerHTML = `<p class="mb-0">${body}</p>`;
+
+    modalConfirmBtn.classList.remove('d-none');
+    modalConfirmBtn.classList.remove('btn-danger'); // reset
+    modalConfirmBtn.classList.add('btn-danger'); // set confirmation color
+    modalConfirmBtn.textContent = 'Yes, Sign Out';
+    modalCloseBtn.textContent = 'Cancel';
+
+    // Clear previous event listener on confirm button
+    const newConfirmBtn = modalConfirmBtn.cloneNode(true);
+    modalConfirmBtn.parentNode.replaceChild(newConfirmBtn, modalConfirmBtn);
+    
+    // Add the new event listener
+    document.getElementById('modalConfirmBtn').addEventListener('click', () => {
+        callback();
+        customModal.hide();
+    }, { once: true }); // Use { once: true } to auto-remove the listener
+
+    customModal.show();
+}
 
 // --- CORE FUNCTIONS ---
 
-function confirmSignOut(e) {
+function confirmSignOut(e, redirectUrl) {
     e.preventDefault(); 
-    const isConfirmed = confirm("Are you sure you want to sign out?");
-    if (isConfirmed) {
-        window.location.href = "/"; 
-    }
+    showConfirm(
+        "Confirm Sign Out",
+        "Are you sure you want to sign out and return to the home page?",
+        () => {
+            window.location.href = redirectUrl; 
+        }
+    );
 }
 
 function showPage(pageId) {
@@ -410,8 +603,14 @@ function showPage(pageId) {
     });
     const activeLink = document.querySelector(`[data-page="${pageId}"]`);
     if (activeLink && sidebarNav.contains(activeLink)) {
-         activeLink.classList.add('active');
-         activeLink.classList.remove('text-white');
+           activeLink.classList.add('active');
+           activeLink.classList.remove('text-white');
+    }
+    
+    // Update the visibility of the "New Request" required fields when navigating away
+    if (pageId !== 'newRequest') {
+        // Clear validation styles when leaving the form page
+        form.classList.remove('was-validated'); 
     }
 }
 
@@ -419,10 +618,12 @@ function toggleFormSection(selectedValue) {
     borrowSection.classList.remove('active');
     transferSection.classList.remove('active');
     
+    // Remove 'required' attribute from all fields in both sections
     document.querySelectorAll('[data-required-group]').forEach(field => {
         field.removeAttribute('required');
     });
 
+    // Set 'required' attribute only for fields in the active section
     if (selectedValue === 'Borrow') {
         borrowSection.classList.add('active');
         document.querySelectorAll('#borrowSection [data-required-group="borrow"]').forEach(field => {
@@ -460,8 +661,12 @@ function filterTable(tableId, searchText) {
 }
 
 function sortData(tableId, sortValue) {
-    console.log(`Sorting table ${tableId} by ${sortValue}`);
-    alert(`The table ${tableId} is being sorted by ${sortValue}. (Functionality placeholder)`);
+    // Placeholder function, replacing previous alert()
+    showMessage(
+        "Sorting Feature",
+        `The table (${tableId.replace('Table', '')}) is being sorted by the selected criteria: <strong>${sortValue}</strong>. (This is a placeholder for future dynamic sorting.)`,
+        'info'
+    );
 }
 
 
@@ -470,6 +675,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Initialize user data and date inputs
     if (loggedUserNameDisplay) {
         loggedUserNameDisplay.textContent = userName;
+    }
+    
+    // Display user ID on the profile page
+    const userIdDisplay = document.getElementById('currentUserId');
+    if (userIdDisplay) {
+        userIdDisplay.textContent = userId;
     }
 
     const today = new Date().toISOString().split('T')[0];
@@ -484,21 +695,6 @@ document.addEventListener('DOMContentLoaded', () => {
     showPage('newRequest'); 
     toggleFormSection(requestTypeDropdown.value); 
 
-
-    // --- Profile Picture Update Listener (NEW FEATURE) ---
-    if (profilePicUpload && profilePicDisplay) {
-        profilePicUpload.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // Update the image source to the new file data URL
-                    profilePicDisplay.src = e.target.result;
-                    alert('Profile picture preview updated. Click "Save Profile" to submit other details.');
-                };
-                reader.readAsDataURL(this.files[0]);
-            }
-        });
-    }
 
     // 2. Dynamic Page Navigation Listener
     document.querySelectorAll('.sidebar a, .dropdown-menu a[data-page]').forEach(link => {
@@ -516,8 +712,14 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const submitButton = form.querySelector('.btn');
         
+        // Custom validation check
         if (!form.checkValidity()) {
-            alert("Please ensure all required fields in the active section are filled out.");
+            form.classList.add('was-validated');
+            showMessage(
+                "Validation Error", 
+                "Please ensure you have selected a Request Type and all required fields in the active section are filled out.",
+                'warning'
+            );
             return; 
         }
 
@@ -527,17 +729,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
         formData.append('Name', userName); 
 
+        // Removed the alert() calls and replaced with showMessage()
         fetch(scriptURL, { method: 'POST', body: formData})
             .then(response => {
-                alert(`✅ Submitted Successfully by ${userName}!`);
+                showMessage(
+                    "Request Submitted!", 
+                    `Permit request submitted successfully by ${userName}!`, 
+                    'success'
+                );
                 form.reset(); 
+                form.classList.remove('was-validated');
                 toggleFormSection(''); 
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<i class="bi bi-send-fill me-2"></i>Submit Request';
             })
             .catch(error => {
                 console.error('Error!', error.message);
-                alert('Submission Failed. Check console for details.');
+                showMessage(
+                    "Submission Failed", 
+                    'There was an error submitting your request. Check the console for details.',
+                    'danger'
+                );
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<i class="bi bi-send-fill me-2"></i>Submit Request';
             });
