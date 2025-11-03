@@ -118,7 +118,6 @@
         <div class="form-box login">
             <form action="{{ url_for('login') }}" method="POST">
                 <h1>Login</h1>
-                <!-- FIX: Changed name='username' to name='email' to match Python logic -->
                 <div class="input-box">
                     <input type="email" name="email" placeholder="Email" required> 
                     <i class='bx bxs-envelope'></i>
@@ -169,7 +168,6 @@
         const registerBtn = document.querySelector('.register-btn');
         const loginBtn = document.querySelector('.login-btn');
         
-        // Function to handle showing/hiding flash messages
         function hideFlashMessages() {
              setTimeout(() => {
                 const alerts = document.querySelectorAll('.flash-messages .alert');
@@ -178,7 +176,7 @@
                     alert.style.transition = 'opacity 1s ease-out';
                     setTimeout(() => alert.remove(), 1000); 
                 });
-            }, 5000); // 5 seconds display time
+            }, 5000); 
         }
 
         registerBtn.addEventListener('click', () => {
@@ -188,7 +186,6 @@
             container.classList.remove('active');
         })
         
-        // Hide messages on load
         hideFlashMessages();
     </script>
 </body>

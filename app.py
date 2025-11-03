@@ -5,7 +5,6 @@ import sys
 app = Flask(__name__)
 app.secret_key = 'CCIS.123'
 
-# Database connection details
 DB_CONFIG = {
     'host': "localhost",
     'user': "root",
@@ -14,7 +13,6 @@ DB_CONFIG = {
 }
 
 def get_db_connection():
-    """Establishes and returns a database connection."""
     try:
         return mysql.connector.connect(**DB_CONFIG)
     except mysql.connector.Error as err:
@@ -22,9 +20,7 @@ def get_db_connection():
         return None
 
 def create_requests_table(db_conn):
-    """Creates the 'requests' table if it doesn't exist."""
     cursor = db_conn.cursor()
-    # Define a standard structure for an e-permit request, linking to the 'users' table.
     try:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS requests (
@@ -47,10 +43,8 @@ def create_requests_table(db_conn):
     finally:
         cursor.close()
 
-# Initial database setup and table creation check
 db = get_db_connection()
 if db:
-    # Ensure the required table is created when the app starts
     create_requests_table(db)
     pass 
 else:
@@ -60,7 +54,7 @@ else:
 # ---------------- HOME ----------------
 @app.route('/')
 def home():
-    return render_template('index.html')  # Login & Register page
+    return render_template('index.html')  
 
 # ---------------- REGISTER ----------------
 @app.route('/register', methods=['POST'])
@@ -95,9 +89,8 @@ def login():
     user = cursor.fetchone()
 
     if user:
-        # Assuming the 'id' column is the first column in the 'users' table (index 0)
         session['user_id'] = user[0] 
-        session['username'] = user[1] # Assuming username is the second column
+        session['username'] = user[1] 
         return redirect(url_for('landing'))
     else:
         return render_template('index.html', login_error="Invalid email or password.")
@@ -112,12 +105,10 @@ def landing():
     cursor = db.cursor()
 
     if request.method == 'POST':
-        # Handles the profile update logic
         department = request.form['department']
         contact_number = request.form['contact_number']
         user_id = session['user_id']
 
-        # Check if profile already exists
         cursor.execute("SELECT * FROM user_profile WHERE user_id=%s", (user_id,))
         existing = cursor.fetchone()
 
@@ -135,7 +126,6 @@ def landing():
 
         db.commit()
         
-    # Fetch joined user data (Profile info)
     cursor.execute("""
         SELECT u.username, u.email, p.department, p.contact_number
         FROM users u
@@ -144,7 +134,6 @@ def landing():
     """, (session['user_id'],))
     user = cursor.fetchone()
 
-    # Fetch user's requests (This is the query that was causing the error before)
     try:
         cursor.execute("""
             SELECT id, request_type, date_of_leave, reason, status, date_requested
