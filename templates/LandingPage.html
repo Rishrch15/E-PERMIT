@@ -12,8 +12,8 @@
     <style>
         :root {
             --sidebar-bg: #060e33;
-            --primary-color: #0d6efd;
-            --secondary-color: #4e54c8;
+            --primary-color: #ff1500;
+            --secondary-color: #ff1500;
         }
         body {
             min-height: 100vh;
@@ -36,7 +36,7 @@
             background-color: var(--primary-color) !important;
             color: white !important;
             font-weight: 600;
-            border-radius: 0.5rem; /* Added rounded corners for links */
+            border-radius: 0.5rem; 
         }
         .nav-link {
             border-radius: 0.5rem;
@@ -49,7 +49,7 @@
         .content-area {
             flex-grow: 1;
             padding: 20px;
-            background-color: #f4f7fa; /* Light background for contrast */
+            background-color: #f4f7fa; 
         }
         .form-container {
             background-color: white;
@@ -88,7 +88,7 @@
             display: block;
         }
         .form-group-custom {
-            margin-bottom: 1.5rem; /* Increased spacing */
+            margin-bottom: 1.5rem; 
         }
         .btn-primary {
             background-color: var(--primary-color);
@@ -146,117 +146,118 @@
 
     <div class="content-area">
         
-        <!-- New Request Page -->
         <div id="newRequest" class="dynamic-page active">
             <div class="form-container" style="max-width: 650px;"> 
                 <h3>Online Permit Request</h3>
-                
-                <form method="post" name="google-sheet" id="permitForm" class="needs-validation" novalidate>
+     <form method="post" action="{{ url_for('add_request') }}" id="permitForm" class="needs-validation" novalidate>
+<div class="form-group-custom">
+    <label for="requestType" class="form-label">Select Request Type</label>
+    <select id="requestType" name="requestType" class="form-select" onchange="toggleFormSection(this.value)" required>
+        <option value="">-- Choose a Request Type --</option>
+        <option value="Borrow">Permit to Borrow</option>
+        <option value="Transfer">Permit to Transfer</option>
+    </select>
+    <div class="invalid-feedback">Please select a request type.</div>
+</div>
 
-                    <div class="form-group-custom">
-                        <label for="requestType" class="form-label">Select Request Type</label>
-                        <select id="requestType" name="Request Type" class="form-select" onchange="toggleFormSection(this.value)" required>
-                            <option value="">-- Choose a Request Type --</option>
-                            <option value="Borrow">Permit to Borrow</option>
-                            <option value="Transfer">Permit to Transfer</option>
-                        </select>
-                        <div class="invalid-feedback">Please select a request type.</div>
-                    </div>
+    <div id="borrowSection" class="form-section">
+        <h4><i class="bi bi-box-seam-fill me-2"></i>Permit to Borrow Details</h4>
+        <div class="row">
+            <div class="col-md-5 form-group-custom">
+                <label for="borrowItem" class="form-label">Item to Borrow</label>
+                <select id="borrowItem" name="borrowItem" class="form-select" data-required-group="borrow">
+                    <option value="">Select Item</option>
+                    <option value="Projector A">Projector</option>
+                    <option value="Laptop - Dept 1">Laptop</option>
+                    <option value="Extension Cord">Extension Cord</option>
+                    <option value="Hand Tools">Hand Tools</option>
+                </select>
+            </div>
+            <div class="col-md-3 form-group-custom">
+                <label for="borrowQuantity" class="form-label">Quantity</label>
+                <input type="number" id="borrowQuantity" name="borrowQuantity" class="form-control" min="1" max="99" value="1" data-required-group="borrow" required>
+            </div>
+            <div class="col-md-4 form-group-custom">
+                <label for="borrowDate" class="form-label">Date Needed</label>
+                <input type="date" id="borrowDate" name="borrowDate" class="form-control" data-required-group="borrow" required>
+            </div>
+        </div>
+        <div class="form-group-custom">
+            <label for="borrowEvent" class="form-label">Event Name / Purpose</label>
+            <input type="text" id="borrowEvent" name="borrowEvent" class="form-control" placeholder="e.g., Q3 Sales Presentation, Training Session" data-required-group="borrow" required>
+        </div>
+        <div class="form-group-custom">
+            <label for="borrowLocation" class="form-label">Usage Location</label>
+            <select id="borrowLocation" name="borrowLocation" class="form-select" data-required-group="borrow" required>
+                <option value="">Select Location</option>
+                <option value="OVAL">Oval</option>
+                                <option value="HPSB BASKETBALL COURT">HPSB BASKETBALL COURT</option>
+                                <option value="HPSB VOLLEYBALL COURT">HPSB VOLLEYBALL COURT</option>
+                                <option value="CAFETERIA BASEMENT">CAFETERIA BASEMENT</option>
+                                <option value="CAFETERIA HPSB 11TH FLOOR">CAFETERIA HPSB 11TH FLOOR</option>
 
-                    <div id="borrowSection" class="form-section">
-                        <h4><i class="bi bi-box-seam-fill me-2"></i>Permit to Borrow Details</h4>
-                        <div class="row">
-                            <div class="col-md-5 form-group-custom">
-                                <label for="borrowItem" class="form-label">Item to Borrow</label>
-                                <select id="borrowItem" name="Item to Borrow" class="form-select" data-required-group="borrow">
-                                    <option value="">Select Item</option>
-                                    <option value="Projector A">Projector</option>
-                                    <option value="Laptop - Dept 1">Laptop</option>
-                                    <option value="Extension Cord">Extension Cord</option>
-                                    <option value="Hand Tools">Hand Tools</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3 form-group-custom">
-                                <label for="borrowQuantity" class="form-label">Quantity</label>
-                                <input type="number" id="borrowQuantity" name="Borrow Quantity" class="form-control" min="1" max="99" value="1" data-required-group="borrow" required>
-                            </div>
-                            <div class="col-md-4 form-group-custom">
-                                <label for="borrowDate" class="form-label">Date Needed</label>
-                                <input type="date" id="borrowDate" name="Date Needed" class="form-control" data-required-group="borrow" required>
-                            </div>
-                        </div>
-                        <div class="form-group-custom">
-                            <label for="borrowEvent" class="form-label">Event Name / Purpose</label>
-                            <input type="text" id="borrowEvent" name="Event / Purpose" class="form-control" placeholder="e.g., Q3 Sales Presentation, Training Session" data-required-group="borrow" required>
-                        </div>
-                        <div class="form-group-custom">
-                            <label for="borrowLocation" class="form-label">Usage Location</label>
-                            <select id="borrowLocation" name="Usage Location" class="form-select" data-required-group="borrow" required>
-                                <option value="">Select Location</option>
-                                <option value="Conference Room A">Conference Room A</option>
-                                <option value="Training Room 2">Training Room 2</option>
-                                <option value="Off-Site - Hotel Grand">Off-Site - Hotel Grand</option>
-                                <option value="Break Room">Employee Break Room</option>
-                            </select>
-                        </div>
-                    </div>
+                </select>
+        </div>
+    </div>
 
-                    <div id="transferSection" class="form-section">
-                        <h4><i class="bi bi-arrows-expand me-2"></i>Permit to Transfer Details</h4>
-                        <div class="row">
-                            <div class="col-md-8 form-group-custom">
-                                <label for="transferEquipment" class="form-label">Equipment to Transfer</label>
-                                <select id="transferEquipment" name="Equipment to Transfer" class="form-select" data-required-group="transfer" required>
-                                    <option value="">Select Equipment</option>
-                                    <option value="Desktop PC Unit">Desktop PC Unit</option>
+    <div id="transferSection" class="form-section">
+        <h4><i class="bi bi-arrows-expand me-2"></i>Permit to Transfer Details</h4>
+        <div class="row">
+            <div class="col-md-8 form-group-custom">
+                <label for="transferEquipment" class="form-label">Equipment to Transfer</label>
+                <select id="transferEquipment" name="transferEquipment" class="form-select" data-required-group="transfer" required>
+                    <option value="">Select Equipment</option>
+                     <option value="Desktop PC Unit">Desktop PC Unit</option>
                                     <option value="Office Desk">Office Desk</option>
                                     <option value="Filing Cabinet">Filing Cabinet (4-Drawer)</option>
-                                    <option value="Printer">Network Printer</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 form-group-custom">
-                                <label for="transferQuantity" class="form-label">Quantity</label>
-                                <input type="number" id="transferQuantity" name="Transfer Quantity" class="form-control" min="1" max="99" value="1" data-required-group="transfer" required>
-                            </div>
-                        </div>
-                        <div class="form-group-custom">
-                            <label for="transferDate" class="form-label">Scheduled Transfer Date</label>
-                            <input type="date" id="transferDate" name="Scheduled Transfer Date" class="form-control" data-required-group="transfer" required>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 form-group-custom">
-                                <label for="transferFrom" class="form-label">Transfer From Location</label>
-                                <select id="transferFrom" name="Transfer From" class="form-select" data-required-group="transfer" required>
-                                    <option value="">Select Origin</option>
-                                    <option value="Warehouse Main">OVAL</option>
+                                    <option value="Table">Table</option>
+                    </select>
+            </div>
+            <div class="col-md-4 form-group-custom">
+                <label for="transferQuantity" class="form-label">Quantity</label>
+                <input type="number" id="transferQuantity" name="transferQuantity" class="form-control" min="1" max="99" value="1" data-required-group="transfer" required>
+            </div>
+        </div>
+        <div class="form-group-custom">
+            <label for="transferDate" class="form-label">Scheduled Transfer Date</label>
+            <input type="date" id="transferDate" name="transferDate" class="form-control" data-required-group="transfer" required>
+        </div>
+        <div class="row">
+            <div class="col-md-6 form-group-custom">
+                <label for="transferFrom" class="form-label">Transfer From Location</label>
+                <select id="transferFrom" name="transferFrom" class="form-select" data-required-group="transfer" required>
+                    <option value="">Select Origin</option>
+                    <option value="Oval">OVAL</option>
                                     <option value="Admin Office">Admin Office</option>
-                                    <option value="IT Server Room">BLDG 1</option>
-                                    <option value="HR Records">HPSB</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 form-group-custom">
-                                <label for="transferTo" class="form-label">Transfer To Location</label>
-                                <select id="transferTo" name="Transfer To" class="form-select" data-required-group="transfer" required>
-                                    <option value="">Select Destination</option>
-                                    <option value="Factory Floor 1">OVAL</option>
-                                    <option value="Marketing Dept">Admin Office</option>
-                                    <option value="Security Gate">BLDG 1</option>
-                                    <option value="Storage Annex">HPSB</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary w-100 mt-4" name="submit">
-                        <i class="bi bi-send-fill me-2"></i>
-                        Submit Request
-                    </button>
-                </form>
+                                    <option value="BLDG 1">BLDG 1</option>
+                                    <option value="HPSB">HPSB</option>
+
+                    </select>
+            </div>
+            <div class="col-md-6 form-group-custom">
+                <label for="transferTo" class="form-label">Transfer To Location</label>
+                <select id="transferTo" name="transferTo" class="form-select" data-required-group="transfer" required>
+                    <option value="">Select Destination</option>
+                     <option value="">Select Destination</option>
+                                    <option value="Oval">OVAL</option>
+                                    <option value="Admin Office">Admin Office</option>
+                                    <option value="BLDG 1">BLDG 1</option>
+                                    <option value="HPSB">HPSB</option>
+                    </select>
+            </div>
+        </div>
+    </div>
+    
+    <button type="submit" class="btn btn-primary w-100 mt-4" name="submit">
+        <i class="bi bi-send-fill me-2"></i>
+        Submit Request
+    </button>
+</form>
             </div>
         </div>
 
         <!-- View Pending Page -->
-        <div id="viewPending" class="dynamic-page">
+      <div id="viewPending" class="dynamic-page">
             <div class="form-container">
                 <h3><i class="bi bi-card-checklist me-2"></i>View Pending Requests</h3>
 
@@ -282,90 +283,87 @@
                                     <th>Type</th>
                                     <th>Item / Equipment</th>
                                     <th>Date Needed</th>
+                                    <th>Date Requested</th> 
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                {% for req in pending_requests %}
                                 <tr>
-                                    <td>1001</td>
-                                    <td>Borrow</td>
-                                    <td>Projector</td>
-                                    <td>2024-11-10</td>
-                                    <td><span class="badge bg-warning text-dark">Pending Approval</span></td>
-                                    <td><button class="btn btn-sm btn-outline-danger" onclick="showMessage('Request Cancelled', 'Request 1001 has been cancelled.', 'danger')"><i class="bi bi-x-circle"></i> Cancel</button></td>
+                                    <td>{{ req[0] }}</td> <td>{{ req[1] }}</td> <td>{{ req[2] }}</td> <td>{{ req[4] }}</td> <td>{{ req[9].strftime('%Y-%m-%d %I:%M %p') }}</td> <td><span class="badge bg-warning text-dark">{{ req[8] }}</span></td> <td>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="showMessage('Request Cancelled', 'Request {{ req[0] }} has been cancelled.', 'danger')">
+                                            <i class="bi bi-x-circle"></i> Cancel
+                                        </button>
+                                    </td>
                                 </tr>
+                                {% else %}
                                 <tr>
-                                    <td>1002</td>
-                                    <td>Transfer</td>
-                                    <td>Desktop PC Unit</td>
-                                    <td>2024-11-05</td>
-                                    <td><span class="badge bg-warning text-dark">Pending Approval</span></td>
-                                    <td><button class="btn btn-sm btn-outline-danger" onclick="showMessage('Request Cancelled', 'Request 1002 has been cancelled.', 'danger')"><i class="bi bi-x-circle"></i> Cancel</button></td>
+                                    <td colspan="7" class="text-center text-muted py-4">No pending requests found.</td>
                                 </tr>
-                            </tbody>
+                                {% endfor %}
+                                </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Dashboard Page -->
-        <div id="dashboard" class="dynamic-page">
-            <div class="form-container">
-                <h3><i class="bi bi-archive-fill me-2"></i>Request Dashboard (History)</h3>
+       <div id="dashboard" class="dynamic-page">
+    <div class="form-container">
+        <h3><i class="bi bi-archive-fill me-2"></i>Request Dashboard (History)</h3>
 
-                <div class="row g-3 mb-3 align-items-center">
-                    <div class="col-md-5">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-search"></i></span>
-                            <input type="text" id="historySearch" class="form-control" placeholder="Search by Item, Event, or Status..." onkeyup="filterTable('historyTable', this.value)">
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <select class="form-select" id="historySort" onchange="sortData('historyTable', this.value)">
-                            <option value="date-desc">Sort by Completion Date (Newest)</option>
-                            <option value="date-asc">Sort by Completion Date (Oldest)</option>
-                            <option value="status-asc">Sort by Status</option>
-                        </select>
-                    </div>
-                     <!-- Placeholder for the actual history table -->
-                    <div class="table-responsive">
-                        <table class="table table-hover table-striped" id="historyTable">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Type</th>
-                                    <th>Item / Equipment</th>
-                                    <th>Date Completed</th>
-                                    <th>Status</th>
-                                    <th>Details</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>987</td>
-                                    <td>Borrow</td>
-                                    <td>Extension Cord</td>
-                                    <td>2024-10-25</td>
-                                    <td><span class="badge bg-success">Approved / Closed</span></td>
-                                    <td><button class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i> View</button></td>
-                                </tr>
-                                <tr>
-                                    <td>988</td>
-                                    <td>Transfer</td>
-                                    <td>Filing Cabinet</td>
-                                    <td>2024-10-20</td>
-                                    <td><span class="badge bg-danger">Rejected</span></td>
-                                    <td><button class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i> View</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div> 
-            </div> 
+        <div class="row g-3 mb-3 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" id="historySearch" class="form-control" placeholder="Search by Item, Event, or Status..." onkeyup="filterTable('historyTable', this.value)">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="historySort" onchange="sortData('historyTable', this.value)">
+                    <option value="date-desc">Sort by Completion Date (Newest)</option>
+                    <option value="date-asc">Sort by Completion Date (Oldest)</option>
+                    <option value="status-asc">Sort by Status</option>
+                </select>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover table-striped" id="historyTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Type</th>
+                            <th>Item / Equipment</th>
+                            <th>Date Requested</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in history_requests %}
+                        <tr>
+                            <td>{{ req[0] }}</td> <td>{{ req[1] }}</td> <td>{{ req[2] }}</td> <td>{{ req[9].strftime('%Y-%m-%d') }}</td> <td>
+                                {% if req[8] == 'Approved' %}
+                                    <span class="badge bg-success">Approved / Closed</span>
+                                {% elif req[8] == 'Rejected' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ req[8] }}</span>
+                                {% endif %}
+                            </td>
+                            <td><button class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i> View</button></td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">No completed requests found in your history.</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                </table>
+            </div>
         </div> 
-        
+    </div> 
+</div>
         <!-- Profile Page -->
         <div id="profile" class="dynamic-page">
             <div class="form-container" style="max-width: 550px;">
@@ -444,7 +442,6 @@
     </div>
 </main>
 
-<!-- Reusable Custom Modal -->
 <div class="modal fade" id="customModal" tabindex="-1" aria-labelledby="customModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-xl shadow-2xl">
@@ -453,7 +450,6 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body py-4" id="customModalBody">
-                <!-- Message content goes here -->
             </div>
             <div class="modal-footer p-3 justify-content-center" id="customModalFooter">
                 <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal" id="modalCloseBtn">Close</button>
@@ -466,17 +462,12 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 <script>
-// --- CONFIGURATION ---
-// REPLACE THIS WITH YOUR ACTUAL GOOGLE APPS SCRIPT URL
-const scriptURL = 'https://script.google.com/macros/s/AKfycbwcGXVQhIUZBHeFIVTvhMNewv1lwjqREB_82Rkie-19WWY87E7koIbZhyO9Ya4MasaI/exec';
+const scriptURL = '/add_request';
 const userName = "{{ user[0] if user else 'User' }}"; 
 const userId = "{{ session['user_id'] if session['user_id'] is defined else 'N/A' }}"; 
-// -----------------------
 
-
-// --- GLOBAL ELEMENTS ---
 const sidebarNav = document.getElementById('sidebarNav');
-const form = document.forms['google-sheet'];
+const form = document.getElementById('permitForm');
 const borrowSection = document.getElementById('borrowSection');
 const transferSection = document.getElementById('transferSection');
 const requestTypeDropdown = document.getElementById('requestType');
@@ -484,7 +475,6 @@ const borrowDateInput = document.getElementById('borrowDate');
 const transferDateInput = document.getElementById('transferDate');
 const loggedUserNameDisplay = document.getElementById('loggedUserNameDisplay');
 
-// Modal Elements
 const customModal = new bootstrap.Modal(document.getElementById('customModal'));
 const modalLabel = document.getElementById('customModalLabel');
 const modalBody = document.getElementById('customModalBody');
@@ -492,15 +482,6 @@ const modalConfirmBtn = document.getElementById('modalConfirmBtn');
 const modalCloseBtn = document.getElementById('modalCloseBtn');
 const modalHeader = document.getElementById('modalHeader');
 
-
-// --- MODAL FUNCTIONS (Replaces alert() and confirm()) ---
-
-/**
- * Shows a custom message modal.
- * @param {string} title - The title of the modal.
- * @param {string} body - The message body.
- * @param {string} type - Optional: 'success', 'danger', 'warning', 'info' for styling.
- */
 function showMessage(title, body, type = 'info') {
     let iconClass;
     let headerClass;
@@ -538,25 +519,21 @@ function showConfirm(title, body, callback) {
     modalBody.innerHTML = `<p class="mb-0">${body}</p>`;
 
     modalConfirmBtn.classList.remove('d-none');
-    modalConfirmBtn.classList.remove('btn-danger'); // reset
-    modalConfirmBtn.classList.add('btn-danger'); // set confirmation color
+    modalConfirmBtn.classList.remove('btn-danger'); 
+    modalConfirmBtn.classList.add('btn-danger'); 
     modalConfirmBtn.textContent = 'Yes, Sign Out';
     modalCloseBtn.textContent = 'Cancel';
 
-    // Clear previous event listener on confirm button
     const newConfirmBtn = modalConfirmBtn.cloneNode(true);
     modalConfirmBtn.parentNode.replaceChild(newConfirmBtn, modalConfirmBtn);
     
-    // Add the new event listener
     document.getElementById('modalConfirmBtn').addEventListener('click', () => {
         callback();
         customModal.hide();
-    }, { once: true }); // Use { once: true } to auto-remove the listener
+    }, { once: true }); 
 
     customModal.show();
 }
-
-// --- CORE FUNCTIONS ---
 
 function confirmSignOut(e, redirectUrl) {
     e.preventDefault(); 
@@ -665,12 +642,10 @@ document.addEventListener('DOMContentLoaded', () => {
         transferDateInput.min = today;
     }
 
-    // Show the New Request page by default
     showPage('newRequest'); 
     toggleFormSection(requestTypeDropdown.value); 
 
 
-    // 2. Dynamic Page Navigation Listener
     document.querySelectorAll('.sidebar a, .dropdown-menu a[data-page]').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault(); 
@@ -681,12 +656,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 3. Form Submission Handler (New Request)
     form.addEventListener('submit', e => {
         e.preventDefault();
         const submitButton = form.querySelector('.btn');
         
-        // Custom validation check
         if (!form.checkValidity()) {
             form.classList.add('was-validated');
             showMessage(
@@ -703,7 +676,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
         formData.append('Name', userName); 
 
-        // Removed the alert() calls and replaced with showMessage()
         fetch(scriptURL, { method: 'POST', body: formData})
             .then(response => {
                 showMessage(
