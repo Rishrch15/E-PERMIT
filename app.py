@@ -314,7 +314,7 @@ def logout():
     """Clears the user session and redirects to login."""
     session.clear()
     flash("You have been logged out successfully.", "info")
-    return redirect(url_for('login'))
+    return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(debug=True)
