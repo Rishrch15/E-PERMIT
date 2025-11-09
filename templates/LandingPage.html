@@ -5,11 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>E-Permit Request Application</title>
 
-    <!-- Load Inter font for aesthetics (as per modern web guidelines) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
@@ -21,7 +18,7 @@
         body {
             min-height: 100vh;
             overflow-x: hidden;
-            font-family: 'Inter', sans-serif; /* Using Inter font */
+            font-family: 'Inter', sans-serif; 
         }
         main {
             display: flex;
@@ -56,8 +53,8 @@
         }
         .form-container {
             background-color: white;
-            border-radius: 12px; /* Smoother rounded corners */
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08); /* Stronger shadow */
+            border-radius: 12px; 
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08); 
             padding: 30px;
             max-width: 900px;
             margin: 0 auto;
@@ -70,7 +67,7 @@
         }
         h4 {
             color: var(--primary-color);
-            border-bottom: 2px solid #e9ecef; /* Thicker, lighter border */
+            border-bottom: 2px solid #e9ecef; 
             padding-bottom: 8px;
             margin-top: 25px;
             margin-bottom: 20px;
@@ -136,7 +133,6 @@
         </ul>
         <hr>
         <div class="dropdown">
-            <!-- Added ID for easier JS manipulation of the profile picture -->
             <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                 <img id="profileAvatarDisplay" src="https://placehold.co/32x32/1a73e8/ffffff?text=U" alt="Profile Avatar" width="32" height="32" class="rounded-circle me-2 border border-light">
                 <strong id="loggedUserNameDisplay">{{ user.username }}</strong>
@@ -144,7 +140,6 @@
             <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
                 <li><a class="dropdown-item" href="#" data-page="profile">Profile</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <!-- Updated to use the custom modal for sign out confirmation -->
             <li><a class="dropdown-item" href="#" onclick="confirmSignOut(event, '{{ url_for('logout') }}')">Sign out</a></li>            </ul>
         </div>
     </div>
@@ -279,7 +274,6 @@
                             <option value="type-asc">Sort by Request Type</option>
                         </select>
                     </div>
-                    <!-- Placeholder for the actual pending table -->
                     <div class="table-responsive">
                         <table class="table table-hover table-striped" id="pendingTable">
                             <thead class="table-dark">
@@ -293,7 +287,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Sample data, replace with dynamic data -->
                                 <tr>
                                     <td>1001</td>
                                     <td>Borrow</td>
@@ -350,7 +343,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Sample data, replace with dynamic data -->
                                 <tr>
                                     <td>987</td>
                                     <td>Borrow</td>
@@ -381,9 +373,7 @@
                 <p class="text-muted text-center">Update your contact details and department below.</p>
                 
                 <div class="text-center mb-4">
-                    <!-- Large profile picture display -->
                     <img id="profilePageDisplay" src="https://placehold.co/100x100/1a73e8/ffffff?text=U" alt="User Profile Picture" width="100" height="100" class="rounded-circle border border-4 border-primary shadow">
-                    <!-- Display user name from context data -->
                     <h5 class="mt-2 text-primary">{{ user[0] if user else 'N/A' }}</h5> 
                     <small class="text-muted">User ID: <span id="currentUserId">N/A</span></small>
                 </div>
@@ -392,15 +382,13 @@
 
                 <form method="POST">
                     <div class="mb-3">
-                        <label for="profileName" class="form-label">Full Name</label>
-                        <!-- Assumes user[0] is the name -->
+                        <label for="profileName" class="form-label">Username</label>
                         <input type="text" class="form-control" id="profileName" value="{{ user[0] if user else '' }}" disabled>
                         <div class="form-text">Name is pulled from the system (read-only).</div>
                     </div>
 
                     <div class="mb-3">
                         <label for="profileEmail" class="form-label">Email Address</label>
-                         <!-- Assumes user[1] is the email -->
                         <input type="email" class="form-control" id="profileEmail" value="{{ user[1] if user else '' }}" disabled>
                     </div>
 
@@ -408,7 +396,6 @@
                         <label for="profileDepartment" class="form-label">Department</label>
                         <select class="form-select" id="profileDepartment" name="department">
                             <option value="">Select Department</option>
-                            <!-- Assumes user[2] is the department -->
                             <option {% if user and user[2]=='CCIS' %}selected{% endif %}>CCIS</option>
                             <option {% if user and user[2]=='CLAS' %}selected{% endif %}>CLAS</option>
                             <option {% if user and user[2]=='CBFS' %}selected{% endif %}>CBFS</option>
@@ -432,7 +419,6 @@
 
                     <div class="mb-3">
                         <label for="profilePhone" class="form-label">Contact Number</label>
-                         <!-- Assumes user[3] is the contact number -->
                         <input type="tel" class="form-control" id="profilePhone" name="contact_number" 
                                 value="{{ user[3] if user and user[3] else '' }}" placeholder="e.g., 09123456789">
                     </div>
@@ -545,12 +531,7 @@ function showMessage(title, body, type = 'info') {
     customModal.show();
 }
 
-/**
- * Shows a confirmation modal.
- * @param {string} title - The title of the modal.
- * @param {string} body - The question body.
- * @param {function} callback - Function to execute if confirmed.
- */
+
 function showConfirm(title, body, callback) {
     modalHeader.className = `modal-header p-3 rounded-top-lg bg-warning text-dark`;
     modalLabel.innerHTML = `<i class="bi bi-question-circle-fill me-2"></i>${title}`;
@@ -607,9 +588,7 @@ function showPage(pageId) {
            activeLink.classList.remove('text-white');
     }
     
-    // Update the visibility of the "New Request" required fields when navigating away
     if (pageId !== 'newRequest') {
-        // Clear validation styles when leaving the form page
         form.classList.remove('was-validated'); 
     }
 }
@@ -618,12 +597,10 @@ function toggleFormSection(selectedValue) {
     borrowSection.classList.remove('active');
     transferSection.classList.remove('active');
     
-    // Remove 'required' attribute from all fields in both sections
     document.querySelectorAll('[data-required-group]').forEach(field => {
         field.removeAttribute('required');
     });
 
-    // Set 'required' attribute only for fields in the active section
     if (selectedValue === 'Borrow') {
         borrowSection.classList.add('active');
         document.querySelectorAll('#borrowSection [data-required-group="borrow"]').forEach(field => {
@@ -661,7 +638,6 @@ function filterTable(tableId, searchText) {
 }
 
 function sortData(tableId, sortValue) {
-    // Placeholder function, replacing previous alert()
     showMessage(
         "Sorting Feature",
         `The table (${tableId.replace('Table', '')}) is being sorted by the selected criteria: <strong>${sortValue}</strong>. (This is a placeholder for future dynamic sorting.)`,
@@ -672,12 +648,10 @@ function sortData(tableId, sortValue) {
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // 1. Initialize user data and date inputs
     if (loggedUserNameDisplay) {
         loggedUserNameDisplay.textContent = userName;
     }
     
-    // Display user ID on the profile page
     const userIdDisplay = document.getElementById('currentUserId');
     if (userIdDisplay) {
         userIdDisplay.textContent = userId;
