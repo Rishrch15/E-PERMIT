@@ -17,7 +17,7 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1); 
         }
         .admin-header {
-            background-color: #060e33; /* Your dark blue color */
+            background-color: #060e33; 
             color: white;
             padding: 15px;
             margin-bottom: 20px;
@@ -25,7 +25,6 @@
         }
         .admin-header h1 { margin: 0; }
         .details-modal-body p { margin-bottom: 5px; }
-        /* Custom class from earlier conversation */
         .ccis-header {
             background-color: #060e33 !important; 
             color: white !important; 
@@ -201,14 +200,12 @@
         detailsModal.addEventListener('show.bs.modal', event => {
             const button = event.relatedTarget;
             
-            // Extract info from data-* attributes
             const id = button.getAttribute('data-id');
             const purpose = button.getAttribute('data-purpose');
             const from = button.getAttribute('data-from');
             const to = button.getAttribute('data-to');
             const requested = button.getAttribute('data-requested');
             
-            // Update the modal's content
             document.getElementById('modal-id').textContent = id;
             document.getElementById('modal-purpose').textContent = purpose;
             document.getElementById('modal-from').textContent = from;
@@ -216,7 +213,6 @@
             document.getElementById('modal-requested').textContent = requested;
         });
         
-        // Ensure the correct tab remains active on refresh/redirect
         document.addEventListener('DOMContentLoaded', () => {
             const activeTab = new URLSearchParams(window.location.search).get('tab');
             if (activeTab === 'history') {

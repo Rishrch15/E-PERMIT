@@ -192,6 +192,13 @@
         .social-icons a:hover {
             color: #ff1500;
         }
+
+        .header-logo img {
+            height: 30px; /* Adjust height as needed */
+            width: auto;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
         
         @media (max-width: 768px) {
             .header, footer {
@@ -213,12 +220,30 @@
                 flex-direction: column;
             }
         }
+
+        .header-logo {
+            display: flex;
+            align-items: center; 
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1px;
+        }
+
+        .header-logo img {
+            height: 60px; 
+            width: auto;
+            margin-right: 12px; 
+        }
+
     </style>
 </head>
 <body>
 
     <header class="header">
-    <div class="header-logo">e-PERMIT</div>
+    <div class="header-logo">
+<img src="{{ url_for('static', filename='WEBLOGO.png') }}" alt="e-PERMIT Logo" class="logo-img">
+        <span>e-PERMIT</span>
+    </div>
     <nav class="header-nav">
         <a href="#" class="active">Home</a>
         <a href="#info">Guidelines</a>
@@ -257,13 +282,13 @@
         <p>The E-Permit System provides University students and administrative offices a digital platform to simplify the processing of event-related request. It ensures faster transactions, real-time status updates, and secure record management for permits and approvals.</p>        </div>
 
         <div>
-            <h3>Contact Us</h3>
-            <p>JP RIZAL WEST REMBO, TAGUIG CITY</p>
+            <h3>Contact Me</h3>
+            <p>JP RIZAL EXT. WEST REMBO, TAGUIG CITY</p>
             <p>Email: <a href="mailto:irishrocha546@gmail.com">irishrocha546@gmail.com</a></p>
             <p>Phone: (63) 9506558579</p>
         </div>
         <div>
-            <h3>Follow Us</h3>
+            <h3>Follow Me</h3>
             <div class="social-icons">
                 <a href="https://www.facebook.com/irish.rocha.1115/" aria-label="Facebook"><i class='bx bxl-facebook-square'></i></a>
             </div>

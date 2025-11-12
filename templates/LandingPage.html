@@ -123,16 +123,17 @@
             color: #333;
             opacity: 0.8;
         }
+    
     </style>
 </head>
 <body>
 
 <main>
     <div class="d-flex flex-column flex-shrink-0 p-3 sidebar">
-        <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none" onclick="showPage('newRequest')">
-            <i class="bi bi-briefcase-fill me-2 fs-4 text-warning"></i>
-            <span class="fs-4 fw-bold">e-Permit</span>
-        </a>
+       <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none" onclick="showPage('newRequest')">
+    <img src="{{ url_for('static', filename='WEBLOGO.png') }}" alt="e-PERMIT Logo" class="logo-img me-2" style="width: 40px; height: 40px;">
+    <span class="fs-4 fw-bold">e-Permit</span>
+</a>
         <hr>
         <ul class="nav nav-pills flex-column mb-auto" id="sidebarNav">
             <li class="nav-item">
@@ -515,7 +516,7 @@ const modalHeader = document.getElementById('modalHeader');
 function showMessage(title, body, type = 'info') {
     let iconClass;
     let headerClass;
-    let closeBtnText = 'Close'; // Default button text
+    let closeBtnText = 'Close'; 
     switch (type) {
         case 'success':
             iconClass = 'bi-check-circle-fill';
@@ -545,7 +546,7 @@ function showMessage(title, body, type = 'info') {
 
 
 function showConfirm(title, body, callback) {
-    modalHeader.className = `modal-header p-3 rounded-top-lg bg-danger text-white`; // Use danger for confirmation
+    modalHeader.className = `modal-header p-3 rounded-top-lg bg-danger text-white`; 
     modalLabel.innerHTML = `<i class="bi bi-question-circle-fill me-2"></i>${title}`;
     modalBody.innerHTML = `<p class="mb-0">${body}</p>`;
 
@@ -555,7 +556,6 @@ function showConfirm(title, body, callback) {
     modalConfirmBtn.textContent = 'Yes, Proceed';
     modalCloseBtn.textContent = 'Cancel';
 
-    // To remove old listeners and prevent multiple triggers
     const newConfirmBtn = modalConfirmBtn.cloneNode(true);
     modalConfirmBtn.parentNode.replaceChild(newConfirmBtn, modalConfirmBtn);
     
@@ -571,7 +571,7 @@ function confirmSignOut(e, redirectUrl) {
     e.preventDefault(); 
     showConfirm(
         "Confirm Sign Out",
-        "Are you sure you want to sign out and return to the home page?",
+        "Are you sure you want to sign out and return to the login page?",
         () => {
             window.location.href = redirectUrl; 
         }

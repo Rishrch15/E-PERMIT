@@ -2,7 +2,10 @@ from flask import Flask, render_template, request, session, redirect, url_for, f
 import mysql.connector
 import sys
 from datetime import datetime
-from flask_bcrypt import Bcrypt  
+from flask_bcrypt import Bcrypt 
+import random
+import smtplib
+from email.mime.text import MIMEText
 
 app = Flask(__name__)
 app.secret_key = 'CCIS.123'
@@ -17,6 +20,11 @@ DB_CONFIG = {
 }
 
 ADMIN_USER_ID = 3
+
+SMTP_SERVER = 'smtp.gmail.com'
+SMTP_PORT = 587
+EMAIL_ADDRESS = 'irocha.k12152432@umak.edu.ph' 
+EMAIL_PASSWORD = 'bygo dfwz vgfg fwav'
 
 
 def get_db_connection():
@@ -81,6 +89,29 @@ def initialize_db():
 
 initialize_db()
 
+# ---------------- For OTP ----------------
+
+def generate_otp():
+    """Generates a simple 6-digit numeric OTP."""
+    return str(random.randint(100000, 999999))
+
+def send_otp_email(recipient_email, otp_code):
+    """Sends the OTP code to the recipient's email."""
+    try:
+        msg = MIMEText(f"Your E-Permit Registration Code is: {otp_code}\n\nThis code expires shortly. Do not share it.")
+        msg['Subject'] = 'E-Permit Email Verification Code'
+        msg['From'] = EMAIL_ADDRESS
+        msg['To'] = recipient_email
+
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server.starttls() # Secure the connection
+        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        server.sendmail(EMAIL_ADDRESS, recipient_email, msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"Error sending email: {e}", file=sys.stderr)
+        return False
 
 # ---------------- HOME ----------------
 @app.route('/')
@@ -89,10 +120,10 @@ def home():
     return render_template('index.html')
 
 
-# ---------------- REGISTER (UPDATED FOR HASHING) ----------------
+# ---------------- REGISTER ----------------
 @app.route('/register', methods=['POST'])
 def register():
-    """Handles new user registration."""
+    """Handles new user registration by sending an OTP instead of final database commit."""
     db = get_db_connection()
     if not db:
         flash("Registration failed due to a database error.", "danger")
@@ -101,42 +132,89 @@ def register():
     cursor = db.cursor()
     username = request.form['username']
     email = request.form['email']
-
-    # 🌟 HASH THE PASSWORD
-    hashed_password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
+    password = request.form['password']
 
     cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
     existing = cursor.fetchone()
+    cursor.close()
+    db.close()
 
     if existing:
-        cursor.close()
-        db.close()
         flash("Email already exists! Please login.", "danger")
         return redirect(url_for('login'))
 
-    try:
-        cursor.execute(
-            "INSERT INTO users (username, email, password) VALUES (%s,%s,%s)",
-            (username, email, hashed_password)  # 🌟 USE THE HASHED PASSWORD
-        )
-        db.commit()
-        flash("Account created! Please login.", "success")
-        return redirect(url_for('login'))
+    otp_code = generate_otp()
+    
+    session['otp_user_data'] = {
+        'username': username,
+        'email': email,
+        'password_hash': bcrypt.generate_password_hash(password).decode('utf-8'),
+        'otp_code': otp_code
+    }
 
-    except Exception as e:
-        print(f"Error during registration: {e}", file=sys.stderr)
-        flash("An error occurred during registration. Please try again.", "danger")
+    if send_otp_email(email, otp_code):
+        flash("A verification code has been sent to your email. Please check your inbox.", "info")
+        return redirect(url_for('verify_otp'))
+    else:
+        session.pop('otp_user_data', None)
+        flash("Failed to send verification email. Please check server configuration.", "danger")
         return redirect(url_for('home'))
 
-    finally:
-        cursor.close()
-        db.close()
+@app.route('/verify_otp', methods=['GET', 'POST'])
+def verify_otp():
+    """Handles OTP verification and final user insertion into the database."""
+    user_data = session.get('otp_user_data')
+    if not user_data:
+        flash("Verification process expired or started incorrectly. Please register again.", "danger")
+        return redirect(url_for('home'))
+
+    if request.method == 'GET':
+        return render_template('login.html') 
+
+    entered_otp = request.form.get('otp_code')
+    stored_otp = user_data.get('otp_code')
+    
+    if entered_otp == stored_otp:
+        db = get_db_connection()
+        if not db:
+            flash("Database error during final registration.", "danger")
+            return redirect(url_for('home'))
+
+        cursor = db.cursor()
+        
+        try:
+            cursor.execute(
+                "INSERT INTO users (username, email, password) VALUES (%s,%s,%s)",
+                (user_data['username'], user_data['email'], user_data['password_hash'])
+            )
+            db.commit()
+
+            session.pop('otp_user_data', None)
+
+            flash("Email verified and account created! You can now log in.", "success")
+            return redirect(url_for('login'))
+
+        except Exception as e:
+            print(f"Error during final registration: {e}", file=sys.stderr)
+            flash("An error occurred during final step. Please try again.", "danger")
+            return redirect(url_for('home'))
+
+        finally:
+            cursor.close()
+            db.close()
+
+    else:
+        flash("Invalid verification code. Please try again.", "danger")
+        return render_template('login.html') 
 
 
-# ---------------- LOGIN (UPDATED FOR HASHING) ----------------
+# ---------------- LOGIN with hashing ----------------
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Handles user login and session creation."""
+    if request.method == 'GET' and 'otp_user_data' in session:
+        return redirect(url_for('verify_otp'))
+
     if request.method == 'GET':
         return render_template('login.html')
 
@@ -168,7 +246,7 @@ def login():
         return render_template('login.html')
 
 
-# ---------------- LANDING ----------------
+# ---------------- LANDING Page----------------
 @app.route('/landing', methods=['GET', 'POST'])
 def landing():
     """Displays the user landing page."""
@@ -322,7 +400,7 @@ def logout():
     """Clears the user session and redirects to login."""
     session.clear()
     flash("You have been logged out successfully.", "info")
-    return redirect(url_for('home'))
+    return redirect(url_for('login'))
 
 
 # ---------------- ADMIN DASHBOARD ----------------
@@ -421,4 +499,4 @@ def update_request_status():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
