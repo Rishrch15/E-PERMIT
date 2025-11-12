@@ -102,9 +102,27 @@
         }
 
         thead.table-dark th {
-    background-color: #060e33; 
-    color: #f8f9fa; 
-}
+            background-color: #060e33; 
+            color: #f8f9fa; 
+        }
+
+        .btn-success {
+            background-color:#ff1500 !important; 
+        }
+
+        .btn-success:hover {
+            background-color:#ff1500 !important;
+        }
+        footer {
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            color: #333;
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -145,7 +163,7 @@
             <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
                 <li><a class="dropdown-item" href="#" data-page="profile">Profile</a></li>
                 <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#" onclick="confirmSignOut(event, '{{ url_for('logout') }}')">Sign out</a></li>            </ul>
+            <li><a class="dropdown-item" href="#" onclick="confirmSignOut(event, '{{ url_for('logout') }}')">Sign out</a></li> 		</ul>
         </div>
     </div>
 
@@ -196,10 +214,10 @@
             <select id="borrowLocation" name="borrowLocation" class="form-select" data-required-group="borrow" required>
                 <option value="">Select Location</option>
                 <option value="OVAL">Oval</option>
-                                <option value="HPSB BASKETBALL COURT">HPSB BASKETBALL COURT</option>
-                                <option value="HPSB VOLLEYBALL COURT">HPSB VOLLEYBALL COURT</option>
-                                <option value="CAFETERIA BASEMENT">CAFETERIA BASEMENT</option>
-                                <option value="CAFETERIA HPSB 11TH FLOOR">CAFETERIA HPSB 11TH FLOOR</option>
+                                        <option value="HPSB BASKETBALL COURT">HPSB BASKETBALL COURT</option>
+                                        <option value="HPSB VOLLEYBALL COURT">HPSB VOLLEYBALL COURT</option>
+                                        <option value="CAFETERIA BASEMENT">CAFETERIA BASEMENT</option>
+                                        <option value="CAFETERIA HPSB 11TH FLOOR">CAFETERIA HPSB 11TH FLOOR</option>
 
                 </select>
         </div>
@@ -213,9 +231,9 @@
                 <select id="transferEquipment" name="transferEquipment" class="form-select" data-required-group="transfer" required>
                     <option value="">Select Equipment</option>
                      <option value="Desktop PC Unit">Desktop PC Unit</option>
-                                    <option value="Office Desk">Office Desk</option>
-                                    <option value="Filing Cabinet">Filing Cabinet (4-Drawer)</option>
-                                    <option value="Table">Table</option>
+                                         <option value="Office Desk">Office Desk</option>
+                                         <option value="Filing Cabinet">Filing Cabinet (4-Drawer)</option>
+                                         <option value="Table">Table</option>
                     </select>
             </div>
             <div class="col-md-4 form-group-custom">
@@ -233,9 +251,9 @@
                 <select id="transferFrom" name="transferFrom" class="form-select" data-required-group="transfer" required>
                     <option value="">Select Origin</option>
                     <option value="Oval">OVAL</option>
-                                    <option value="Admin Office">Admin Office</option>
-                                    <option value="BLDG 1">BLDG 1</option>
-                                    <option value="HPSB">HPSB</option>
+                                         <option value="Admin Office">Admin Office</option>
+                                         <option value="BLDG 1">BLDG 1</option>
+                                         <option value="HPSB">HPSB</option>
 
                     </select>
             </div>
@@ -244,10 +262,10 @@
                 <select id="transferTo" name="transferTo" class="form-select" data-required-group="transfer" required>
                     <option value="">Select Destination</option>
                      <option value="">Select Destination</option>
-                                    <option value="Oval">OVAL</option>
-                                    <option value="Admin Office">Admin Office</option>
-                                    <option value="BLDG 1">BLDG 1</option>
-                                    <option value="HPSB">HPSB</option>
+                                         <option value="Oval">OVAL</option>
+                                         <option value="Admin Office">Admin Office</option>
+                                         <option value="BLDG 1">BLDG 1</option>
+                                         <option value="HPSB">HPSB</option>
                     </select>
             </div>
         </div>
@@ -261,8 +279,7 @@
             </div>
         </div>
 
-        <!-- View Pending Page -->
-      <div id="viewPending" class="dynamic-page">
+        <div id="viewPending" class="dynamic-page">
             <div class="form-container">
                 <h3><i class="bi bi-card-checklist me-2"></i>View Pending Requests</h3>
 
@@ -283,28 +300,36 @@
                     <div class="table-responsive">
                         <table class="table table-hover table-striped" id="pendingTable">
                              <thead class="table-dark">
-                                <tr>
-                                    <th>#</th>
-                                    <th>Type</th>
-                                    <th>Item / Equipment</th>
-                                    <th>Date Needed</th>
-                                    <th>Date Requested</th> 
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
+                                 <tr>
+                                     <th>#</th>
+                                     <th>Type</th>
+                                     <th>Item / Equipment</th>
+                                     <th>Date Needed</th>
+                                     <th>Date Requested</th> 
+                                     <th>Status</th>
+                                     <th>Actions</th>
+                                 </tr>
                             </thead>
                             <tbody>
                                 {% for req in pending_requests %}
                                 <tr>
-                                    <td>{{ req[0] }}</td> <td>{{ req[1] }}</td> <td>{{ req[2] }}</td> <td>{{ req[4] }}</td> <td>{{ req[9].strftime('%Y-%m-%d %I:%M %p') }}</td> <td><span class="badge bg-warning text-dark">{{ req[8] }}</span></td> <td>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="showMessage('Request Cancelled', 'Request {{ req[0] }} has been cancelled.', 'danger')">
-                                            <i class="bi bi-x-circle"></i> Cancel
-                                        </button>
-                                    </td>
+                                     <td>{{ req[0] }}</td> <td>{{ req[1] }}</td> <td>{{ req[2] }}</td> <td>{{ req[4] }}</td> <td>{{ req[9].strftime('%Y-%m-%d %I:%M %p') }}</td> <td><span class="badge bg-warning text-dark">{{ req[8] }}</span></td> <td>
+                                         <div class="d-flex gap-1">
+                                            <button class="btn btn-sm btn-outline-info" onclick="showMessage('Request Details', 'Details for Request ID: {{ req[0] }} (Type: {{ req[1] }}).', 'info')">
+                                                <i class="bi bi-eye"></i> View
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-warning" onclick="showMessage('Request Cancelled', 'Request {{ req[0] }} has been marked for cancellation (Placeholder).', 'warning')">
+                                                <i class="bi bi-x-circle"></i> Cancel
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="showConfirm('Confirm Delete', 'Are you sure you want to permanently delete Request ID: {{ req[0] }}? This cannot be undone.', () => showMessage('Request Deleted', 'Request {{ req[0] }} has been deleted (Placeholder).', 'danger'))">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                         </div>
+                                     </td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="7" class="text-center text-muted py-4">No pending requests found.</td>
+                                     <td colspan="7" class="text-center text-muted py-4">No pending requests found.</td>
                                 </tr>
                                 {% endfor %}
                                 </tbody>
@@ -334,15 +359,14 @@
             </div>
             <div class="table-responsive">
                 <table class="table table-hover table-striped" id="historyTable">
-                     <thead class="table-dark">
+                   <thead class="table-dark">
                         <tr>
                             <th>#</th>
                             <th>Type</th>
                             <th>Item / Equipment</th>
                             <th>Date Requested</th>
                             <th>Status</th>
-                            <th>Details</th>
-                        </tr>
+                            <th>Actions</th> </tr>
                     </thead>
                     <tbody>
                         {% for req in history_requests %}
@@ -356,7 +380,16 @@
                                     <span class="badge bg-secondary">{{ req[8] }}</span>
                                 {% endif %}
                             </td>
-                            <td><button class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i> View</button></td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-info" onclick="showMessage('Request Details', 'History Details for Request ID: {{ req[0] }} (Type: {{ req[1] }}).', 'info')">
+                                        <i class="bi bi-eye"></i> View
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="showConfirm('Confirm Delete History', 'Are you sure you want to permanently remove Request ID: {{ req[0] }} from your history?', () => showMessage('History Deleted', 'Request {{ req[0] }} has been removed from history (Placeholder).', 'danger'))">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                         {% else %}
                         <tr>
@@ -369,7 +402,6 @@
         </div> 
     </div> 
 </div>
-        <!-- Profile Page -->
         <div id="profile" class="dynamic-page">
             <div class="form-container" style="max-width: 550px;">
                 <h3><i class="bi bi-person-fill me-2"></i>User Profile</h3>
@@ -433,17 +465,6 @@
             </div>
         </div>
 
-        <div id="settings" class="dynamic-page">
-            <div class="form-container">
-                <h3><i class="bi bi-gear-fill me-2"></i>Settings (Placeholder)</h3>
-                <p class="text-muted text-center">Future configurations and preferences will appear here.</p>
-                <div class="p-5 text-center bg-light rounded-lg">
-                    <i class="bi bi-tools fs-1 text-secondary"></i>
-                    <p class="mt-3">No user settings are currently configurable.</p>
-                </div>
-            </div>
-        </div>
-
     </div>
 </main>
 
@@ -452,7 +473,7 @@
         <div class="modal-content rounded-xl shadow-2xl">
             <div class="modal-header bg-primary text-white p-3 rounded-top-lg" id="modalHeader">
                 <h5 class="modal-title fs-5" id="customModalLabel"><i class="bi bi-info-circle-fill me-2"></i>Message</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body py-4" id="customModalBody">
             </div>
@@ -463,6 +484,10 @@
         </div>
     </div>
 </div>
+
+<footer>
+        © IRISH ROCHA 2025
+    </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
@@ -490,6 +515,7 @@ const modalHeader = document.getElementById('modalHeader');
 function showMessage(title, body, type = 'info') {
     let iconClass;
     let headerClass;
+    let closeBtnText = 'Close'; // Default button text
     switch (type) {
         case 'success':
             iconClass = 'bi-check-circle-fill';
@@ -513,22 +539,23 @@ function showMessage(title, body, type = 'info') {
     modalBody.innerHTML = `<p class="mb-0">${body}</p>`;
     
     modalConfirmBtn.classList.add('d-none');
-    modalCloseBtn.textContent = 'Close';
+    modalCloseBtn.textContent = closeBtnText;
     customModal.show();
 }
 
 
 function showConfirm(title, body, callback) {
-    modalHeader.className = `modal-header p-3 rounded-top-lg bg-warning text-dark`;
+    modalHeader.className = `modal-header p-3 rounded-top-lg bg-danger text-white`; // Use danger for confirmation
     modalLabel.innerHTML = `<i class="bi bi-question-circle-fill me-2"></i>${title}`;
     modalBody.innerHTML = `<p class="mb-0">${body}</p>`;
 
     modalConfirmBtn.classList.remove('d-none');
-    modalConfirmBtn.classList.remove('btn-danger'); 
+    modalConfirmBtn.classList.remove('btn-danger', 'btn-warning'); 
     modalConfirmBtn.classList.add('btn-danger'); 
-    modalConfirmBtn.textContent = 'Yes, Sign Out';
+    modalConfirmBtn.textContent = 'Yes, Proceed';
     modalCloseBtn.textContent = 'Cancel';
 
+    // To remove old listeners and prevent multiple triggers
     const newConfirmBtn = modalConfirmBtn.cloneNode(true);
     modalConfirmBtn.parentNode.replaceChild(newConfirmBtn, modalConfirmBtn);
     
@@ -690,15 +717,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 );
                 form.reset(); 
                 form.classList.remove('was-validated');
-                toggleFormSection(''); 
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<i class="bi bi-send-fill me-2"></i>Submit Request';
             })
             .catch(error => {
-                console.error('Error!', error.message);
                 showMessage(
-                    "Submission Failed", 
-                    'There was an error submitting your request. Check the console for details.',
+                    "Submission Error",
+                    `There was an error submitting your request. Please try again. Error: ${error.message}`,
                     'danger'
                 );
                 submitButton.disabled = false;
@@ -707,6 +732,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-
 </body>
 </html>

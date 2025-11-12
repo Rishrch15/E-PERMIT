@@ -1,10 +1,13 @@
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 import mysql.connector
 import sys
-from datetime import datetime 
+from datetime import datetime
+from flask_bcrypt import Bcrypt  
 
 app = Flask(__name__)
-app.secret_key = 'CCIS.123' 
+app.secret_key = 'CCIS.123'
+
+bcrypt = Bcrypt(app)
 
 DB_CONFIG = {
     'host': "localhost",
@@ -12,6 +15,9 @@ DB_CONFIG = {
     'password': "",
     'database': "e_permit"
 }
+
+ADMIN_USER_ID = 3
+
 
 def get_db_connection():
     """Establishes a connection to the MySQL database."""
@@ -21,15 +27,16 @@ def get_db_connection():
         print(f"Database Connection Error: {err}", file=sys.stderr)
         return None
 
+
 def initialize_db():
-    """Creates the necessary tables if they don't exist."""
+    """Ensures all tables exist in the database."""
     db = get_db_connection()
     if not db:
         print("FATAL: Could not connect to database.", file=sys.stderr)
         return
-    
+
     cursor = db.cursor()
-    
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -38,7 +45,7 @@ def initialize_db():
             password VARCHAR(255) NOT NULL
         )
     """)
-    
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS user_profile (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -48,7 +55,7 @@ def initialize_db():
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         )
     """)
-    
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS requests (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -65,11 +72,12 @@ def initialize_db():
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         )
     """)
-    
+
     db.commit()
     cursor.close()
     db.close()
     print("INFO: Tables checked/created successfully.")
+
 
 initialize_db()
 
@@ -80,7 +88,8 @@ def home():
     """Renders the main index page."""
     return render_template('index.html')
 
-# ---------------- REGISTER ----------------
+
+# ---------------- REGISTER (UPDATED FOR HASHING) ----------------
 @app.route('/register', methods=['POST'])
 def register():
     """Handles new user registration."""
@@ -88,12 +97,13 @@ def register():
     if not db:
         flash("Registration failed due to a database error.", "danger")
         return redirect(url_for('home'))
-        
-    cursor = db.cursor()
 
+    cursor = db.cursor()
     username = request.form['username']
     email = request.form['email']
-    password = request.form['password'] 
+
+    # 🌟 HASH THE PASSWORD
+    hashed_password = bcrypt.generate_password_hash(request.form['password']).decode('utf-8')
 
     cursor.execute("SELECT * FROM users WHERE email=%s", (email,))
     existing = cursor.fetchone()
@@ -101,28 +111,29 @@ def register():
     if existing:
         cursor.close()
         db.close()
-        flash("Email already exists! Please login.", "danger") 
+        flash("Email already exists! Please login.", "danger")
         return redirect(url_for('login'))
 
     try:
         cursor.execute(
             "INSERT INTO users (username, email, password) VALUES (%s,%s,%s)",
-            (username, email, password)
+            (username, email, hashed_password)  # 🌟 USE THE HASHED PASSWORD
         )
         db.commit()
         flash("Account created! Please login.", "success")
         return redirect(url_for('login'))
-        
+
     except Exception as e:
         print(f"Error during registration: {e}", file=sys.stderr)
         flash("An error occurred during registration. Please try again.", "danger")
         return redirect(url_for('home'))
-        
+
     finally:
         cursor.close()
         db.close()
 
-# ---------------- LOGIN ----------------
+
+# ---------------- LOGIN (UPDATED FOR HASHING) ----------------
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Handles user login and session creation."""
@@ -133,38 +144,45 @@ def login():
     if not db:
         flash("Login failed due to a database error.", "danger")
         return render_template('login.html')
-        
+
     cursor = db.cursor()
     email = request.form['email']
-    password = request.form['password']
+    password = request.form['password']  
 
-    cursor.execute("SELECT id, username FROM users WHERE email=%s AND password=%s", (email, password))
-    user = cursor.fetchone()
-    
+    cursor.execute("SELECT id, username, password FROM users WHERE email=%s", (email,))
+    user = cursor.fetchone()  
     cursor.close()
     db.close()
 
-    if user:
+    if user and bcrypt.check_password_hash(user[2], password):
         session['user_id'] = user[0]
         session['username'] = user[1]
         flash(f"Welcome back, {user[1]}!", "success")
-        return redirect(url_for('landing'))
+
+        if user[0] == ADMIN_USER_ID:
+            return redirect(url_for('admin_dashboard'))
+        else:
+            return redirect(url_for('landing'))
     else:
         flash("Invalid email or password.", "danger")
         return render_template('login.html')
 
-# ---------------- LANDING (UPDATED) ----------------
+
+# ---------------- LANDING ----------------
 @app.route('/landing', methods=['GET', 'POST'])
 def landing():
-    """Renders the user dashboard, handles profile updates, and fetches requests."""
+    """Displays the user landing page."""
     if 'user_id' not in session:
         return redirect(url_for('login'))
+
+    if session['user_id'] == ADMIN_USER_ID:
+        return redirect(url_for('admin_dashboard'))
 
     db = get_db_connection()
     if not db:
         flash("Could not load dashboard data due to a database error.", "danger")
         return redirect(url_for('logout'))
-        
+
     cursor = db.cursor()
     user_id = session['user_id']
 
@@ -202,7 +220,8 @@ def landing():
     user = cursor.fetchone()
 
     cursor.execute("""
-        SELECT id, request_type, item, quantity, date_needed, purpose, location_from, location_to, status, date_requested
+        SELECT id, request_type, item, quantity, date_needed, purpose, 
+               location_from, location_to, status, date_requested
         FROM requests
         WHERE user_id=%s
         ORDER BY date_requested DESC
@@ -211,16 +230,17 @@ def landing():
 
     cursor.close()
     db.close()
-    
+
     pending_requests = [req for req in requests_list if req[8] == 'Pending']
     history_requests = [req for req in requests_list if req[8] != 'Pending']
 
     return render_template(
-        'LandingPage.html', 
-        user=user, 
-        pending_requests=pending_requests,  
-        history_requests=history_requests  
+        'LandingPage.html',
+        user=user,
+        pending_requests=pending_requests,
+        history_requests=history_requests
     )
+
 
 # ---------------- ADD REQUEST ----------------
 @app.route('/add_request', methods=['POST'])
@@ -233,18 +253,12 @@ def add_request():
     if not db:
         flash("Failed to submit request: Database connection error.", "danger")
         return redirect(url_for('landing'))
-        
-    cursor = db.cursor()
 
+    cursor = db.cursor()
     user_id = session['user_id']
     request_type = request.form.get('requestType')
 
-    item = None
-    quantity = None
-    date_needed = None
-    purpose = None
-    location_from = None
-    location_to = None
+    item = quantity = date_needed = purpose = location_from = location_to = None
 
     if request_type == 'Borrow':
         item = request.form.get('borrowItem')
@@ -265,7 +279,6 @@ def add_request():
         flash("Invalid request type submitted.", "danger")
         return redirect(url_for('landing'))
 
-    
     if not item or not date_needed:
         cursor.close()
         db.close()
@@ -273,13 +286,10 @@ def add_request():
         return redirect(url_for('landing'))
 
     try:
-        if quantity_str and quantity_str.isdigit():
-            quantity = int(quantity_str)
-        else:
-            quantity = 1 
+        quantity = int(quantity_str) if quantity_str and quantity_str.isdigit() else 1
     except ValueError:
-        quantity = 1 
-        
+        quantity = 1
+
     try:
         datetime.strptime(date_needed, '%Y-%m-%d')
     except ValueError:
@@ -294,19 +304,17 @@ def add_request():
             (user_id, request_type, item, quantity, date_needed, purpose, location_from, location_to)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, (user_id, request_type, item, quantity, date_needed, purpose, location_from, location_to))
-        
         db.commit()
         flash("Request submitted successfully!", "success")
-        
     except Exception as e:
         print(f"Error inserting request: {e}", file=sys.stderr)
         flash("Failed to submit request. Please check server logs.", "danger")
-        
     finally:
         cursor.close()
         db.close()
 
     return redirect(url_for('landing'))
+
 
 # ---------------- LOGOUT ----------------
 @app.route('/logout')
@@ -315,6 +323,102 @@ def logout():
     session.clear()
     flash("You have been logged out successfully.", "info")
     return redirect(url_for('home'))
+
+
+# ---------------- ADMIN DASHBOARD ----------------
+@app.route('/admin_dashboard')
+def admin_dashboard():
+    """Fetches all PENDING and HISTORY requests for the admin to review."""
+    if 'user_id' not in session or session['user_id'] != ADMIN_USER_ID:
+        flash("Access denied. You must be an administrator.", "danger")
+        return redirect(url_for('login'))
+
+    db = get_db_connection()
+    if not db:
+        flash("Could not load data due to a database error.", "danger")
+        return render_template('AdminDashboard.html', pending_requests=[], history_requests=[], active_tab='pending')
+
+    cursor = db.cursor()
+
+    cursor.execute("""
+        SELECT r.id, u.username, r.request_type, r.item, r.quantity, r.date_needed,
+               r.purpose, r.location_from, r.location_to, r.date_requested
+        FROM requests r
+        JOIN users u ON r.user_id = u.id
+        WHERE r.status = 'Pending'
+        ORDER BY r.date_requested ASC
+    """)
+    pending_requests = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT r.id, u.username, r.request_type, r.item, r.quantity, r.date_needed,
+               r.purpose, r.location_from, r.location_to, r.date_requested, r.status
+        FROM requests r
+        JOIN users u ON r.user_id = u.id
+        WHERE r.status IN ('Approved', 'Rejected')
+        ORDER BY r.date_requested DESC
+    """)
+    history_requests = cursor.fetchall()
+
+    cursor.close()
+    db.close()
+
+    active_tab = request.args.get('tab', 'pending')
+
+    return render_template(
+        'AdminDashboard.html',
+        pending_requests=pending_requests,
+        history_requests=history_requests,
+        active_tab=active_tab
+    )
+
+
+# ---------------- UPDATE REQUEST STATUS ----------------
+@app.route('/update_request_status', methods=['POST'])
+def update_request_status():
+    """Handles admin action to approve or reject a request."""
+    if 'user_id' not in session or session['user_id'] != ADMIN_USER_ID:
+        flash("Authorization failed.", "danger")
+        return redirect(url_for('login'))
+
+    db = get_db_connection()
+    if not db:
+        flash("Failed to process action due to a database error.", "danger")
+        return redirect(url_for('admin_dashboard'))
+
+    cursor = db.cursor()
+    request_id = request.form.get('request_id')
+    new_status = request.form.get('action')
+
+    if not request_id or new_status not in ['Approved', 'Rejected']:
+        flash("Invalid request data provided.", "danger")
+        cursor.close()
+        db.close()
+        return redirect(url_for('admin_dashboard'))
+
+    try:
+        cursor.execute("SELECT status FROM requests WHERE id = %s", (request_id,))
+        current_status = cursor.fetchone()
+
+        if current_status and current_status[0] == 'Pending':
+            cursor.execute(
+                "UPDATE requests SET status = %s WHERE id = %s",
+                (new_status, request_id)
+            )
+            db.commit()
+            flash(f"Request #{request_id} has been successfully {new_status.lower()}.", "success")
+        else:
+            flash(f"Request #{request_id} status is already {current_status[0].lower()} and cannot be changed.", "warning")
+
+    except Exception as e:
+        print(f"Error updating request status: {e}", file=sys.stderr)
+        flash("An unexpected database error occurred.", "danger")
+    finally:
+        cursor.close()
+        db.close()
+
+    return redirect(url_for('admin_dashboard', tab='history'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)

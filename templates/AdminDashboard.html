@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - E-Permit</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .admin-container { 
+            max-width: 95%; 
+            margin: 50px auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); 
+        }
+        .admin-header {
+            background-color: #060e33; /* Your dark blue color */
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .admin-header h1 { margin: 0; }
+        .details-modal-body p { margin-bottom: 5px; }
+        /* Custom class from earlier conversation */
+        .ccis-header {
+            background-color: #060e33 !important; 
+            color: white !important; 
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header d-flex justify-content-between align-items-center">
+            <h1><i class="bi bi-person-gear me-2"></i>Admin Review Panel</h1>
+            <a href="{{ url_for('logout') }}" class="btn btn-warning"><i class="bi bi-box-arrow-right"></i> Logout</a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-3">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if active_tab == 'pending' %}active{% endif %}" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-controls="pending" aria-selected="true">
+                    <i class="bi bi-list-task me-1"></i> Pending Requests ({{ pending_requests|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if active_tab == 'history' %}active{% endif %}" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab" aria-controls="history" aria-selected="false">
+                    <i class="bi bi-clock-history me-1"></i> Review History ({{ history_requests|length }})
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="adminTabsContent">
+            
+            <div class="tab-pane fade {% if active_tab == 'pending' %}show active{% endif %}" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="adminPendingTable">
+                        <thead class="ccis-header">
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Type</th>
+                                <th>Item / Equipment</th>
+                                <th>Qty</th>
+                                <th>Date Needed</th>
+                                <th>Details</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in pending_requests %}
+                            <tr>
+                                <td>{{ req[0] }}</td> <td>{{ req[1] }}</td> <td>{{ req[2] }}</td> <td>{{ req[3] }}</td> <td>{{ req[4] }}</td> <td>{{ req[5] }}</td> <td>
+                                    <button 
+                                        class="btn btn-sm btn-info text-white" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#detailsModal"
+                                        data-id="{{ req[0] }}"
+                                        data-purpose="{{ req[6] or 'N/A' }}"
+                                        data-from="{{ req[7] or 'N/A' }}"
+                                        data-to="{{ req[8] or 'N/A' }}"
+                                        data-requested="{{ req[9].strftime('%Y-%m-%d %I:%M %p') }}">
+                                        View
+                                    </button>
+                                </td>
+                                
+                                <td class="d-flex gap-2">
+                                    <form action="{{ url_for('update_request_status') }}" method="post" style="display:inline;">
+                                        <input type="hidden" name="request_id" value="{{ req[0] }}">
+                                        <input type="hidden" name="action" value="Approved">
+                                        <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i> Approve</button>
+                                    </form>
+                                    <form action="{{ url_for('update_request_status') }}" method="post" style="display:inline;">
+                                        <input type="hidden" name="request_id" value="{{ req[0] }}">
+                                        <input type="hidden" name="action" value="Rejected">
+                                        <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-x-lg"></i> Reject</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">No pending requests require action.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-pane fade {% if active_tab == 'history' %}show active{% endif %}" id="history" role="tabpanel" aria-labelledby="history-tab">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="adminHistoryTable">
+                        <thead class="ccis-header">
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Type</th>
+                                <th>Item / Equipment</th>
+                                <th>Date Requested</th>
+                                <th>Status</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in history_requests %}
+                            <tr>
+                                <td>{{ req[0] }}</td> <td>{{ req[1] }}</td> <td>{{ req[2] }}</td> <td>{{ req[3] }}</td> <td>{{ req[9].strftime('%Y-%m-%d %I:%M %p') }}</td> <td>
+                                    {% if req[10] == 'Approved' %}
+                                        <span class="badge bg-success">Approved</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Rejected</span>
+                                    {% endif %}
+                                </td>
+                                
+                                <td>
+                                    <button 
+                                        class="btn btn-sm btn-info text-white" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#detailsModal"
+                                        data-id="{{ req[0] }}"
+                                        data-purpose="{{ req[6] or 'N/A' }}"
+                                        data-from="{{ req[7] or 'N/A' }}"
+                                        data-to="{{ req[8] or 'N/A' }}"
+                                        data-requested="{{ req[9].strftime('%Y-%m-%d %I:%M %p') }}">
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">No completed requests in history.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div> </div>
+
+    <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailsModalLabel">Request Details #<span id="modal-id"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body details-modal-body">
+                    <p><strong>Purpose/Event:</strong> <span id="modal-purpose"></span></p>
+                    <p><strong>Location From:</strong> <span id="modal-from"></span></p>
+                    <p><strong>Location To:</strong> <span id="modal-to"></span></p>
+                    <hr>
+                    <p><strong>Date Requested:</strong> <span id="modal-requested"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        const detailsModal = document.getElementById('detailsModal');
+        detailsModal.addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget;
+            
+            // Extract info from data-* attributes
+            const id = button.getAttribute('data-id');
+            const purpose = button.getAttribute('data-purpose');
+            const from = button.getAttribute('data-from');
+            const to = button.getAttribute('data-to');
+            const requested = button.getAttribute('data-requested');
+            
+            // Update the modal's content
+            document.getElementById('modal-id').textContent = id;
+            document.getElementById('modal-purpose').textContent = purpose;
+            document.getElementById('modal-from').textContent = from;
+            document.getElementById('modal-to').textContent = to;
+            document.getElementById('modal-requested').textContent = requested;
+        });
+        
+        // Ensure the correct tab remains active on refresh/redirect
+        document.addEventListener('DOMContentLoaded', () => {
+            const activeTab = new URLSearchParams(window.location.search).get('tab');
+            if (activeTab === 'history') {
+                const historyTabButton = document.getElementById('history-tab');
+                if (historyTabButton) {
+                    new bootstrap.Tab(historyTabButton).show();
+                }
+            } else {
+                const pendingTabButton = document.getElementById('pending-tab');
+                if (pendingTabButton) {
+                    new bootstrap.Tab(pendingTabButton).show();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
