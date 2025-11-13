@@ -12,15 +12,12 @@
             margin: 0; 
             padding: 0; 
             box-sizing: border-box; 
-            font-family: 'Poppins', sans-serif;
-
-
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
             text-decoration: none; 
-            list-style: none; 
+            list-style: none;
         }
         body {
             display: flex; 
-
             justify-content: center; 
             align-items: center;
             flex-direction: column; 
@@ -87,13 +84,15 @@
             background-color: #e51300;
         }
 
-        .container {
-            position: relative; width: 850px; height: 550px;
-            background: #fff; margin: 20px;
-            border-radius: 30px; box-shadow: 0 0 30px rgba(0, 0, 0, .2);
-            overflow: hidden; 
-            margin-top: 80px; 
-            margin-bottom: 60px; 
+        .container{
+            position: relative;
+            width: 850px;
+            height: 550px;
+            background: #fff;
+            margin: 20px;
+            border-radius: 30px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, .2);
+            overflow: hidden;
         }
         .container h1 { 
             font-size: 36px; 
@@ -332,14 +331,36 @@
             z-index: 101; 
         }
         .flash-messages .alert {
-            padding: 10px 20px; margin-bottom: 10px; border-radius: 5px;
-            font-size: 14px; text-align: center; color: #333; 
-            border: 1px solid transparent; opacity: 1; transition: opacity 0.5s;
+            padding: 10px 20px; 
+            margin-bottom: 10px; 
+            border-radius: 5px;
+            font-size: 14px; 
+            text-align: center; 
+            color: #333; 
+            border: 1px solid transparent; 
+            opacity: 1; 
+            transition: opacity 0.5s;
         }
-        .alert.success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
-        .alert.danger { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
-        .alert.warning { background-color: #fff3cd; border-color: #ffeeba; color: #856404; }
-        .alert.info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        .alert.success { 
+            background-color: #d4edda; 
+            border-color: #c3e6cb; 
+            color: #155724; 
+        }
+        .alert.danger { 
+            background-color: #f8d7da; 
+            border-color: #f5c6cb; 
+            color: #721c24; 
+        }
+        .alert.warning { 
+            background-color: #fff3cd; 
+            border-color: #ffeeba; 
+            color: #856404; 
+        }
+        .alert.info { 
+            background-color: #d1ecf1; 
+            border-color: #bee5eb; 
+            color: #0c5460; 
+        }
         
         footer {
             position: fixed; 

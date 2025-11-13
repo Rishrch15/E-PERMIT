@@ -302,7 +302,7 @@ def forgot_password_request():
     cursor.execute("SELECT id FROM users WHERE email=%s", (email,))
     user = cursor.fetchone()
     
-    flash("A password reset link has been sent to your email if an account exists.", 'success')
+    flash("A password reset link has been sent to your email.", 'success')
     
     if user:
         user_id = user[0]
@@ -335,9 +335,7 @@ def forgot_password_request():
 
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
-    """
-    Handles the actual password reset after the user clicks the link in their email.
-    """
+   
     db = get_db_connection()
     if not db:
         flash("Database error during password reset.", "danger")
