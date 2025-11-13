@@ -393,6 +393,43 @@ def add_request():
 
     return redirect(url_for('landing'))
 
+@app.route('/cancel_request/<int:req_id>', methods=['POST'])
+def cancel_request(req_id):
+    db = get_db_connection()
+    if not db:
+        flash("Database connection failed.", "danger")
+        return redirect(url_for('landing'))
+
+    cursor = db.cursor()
+    try:
+        cursor.execute("UPDATE requests SET status = %s WHERE id = %s", ("Cancelled", req_id))
+        db.commit()
+        flash("Request has been cancelled.", "warning")
+    except Exception as e:
+        print(f"Error cancelling request: {e}", file=sys.stderr)
+        flash("Failed to cancel the request.", "danger")
+    finally:
+        cursor.close()
+        db.close()
+
+    return redirect(url_for('landing'))
+
+
+
+@app.route('/delete_request/<int:req_id>', methods=['POST'])
+def delete_request(req_id):
+    conn = mysql.connector.connect(**DB_CONFIG)
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM requests WHERE id = %s LIMIT 1", (req_id,))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+    flash("Request has been deleted.", "danger")
+    return redirect(url_for('landing'))  
+
 
 # ---------------- LOGOUT ----------------
 @app.route('/logout')

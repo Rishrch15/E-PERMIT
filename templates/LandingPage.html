@@ -215,10 +215,10 @@
             <select id="borrowLocation" name="borrowLocation" class="form-select" data-required-group="borrow" required>
                 <option value="">Select Location</option>
                 <option value="OVAL">Oval</option>
-                                        <option value="HPSB BASKETBALL COURT">HPSB BASKETBALL COURT</option>
-                                        <option value="HPSB VOLLEYBALL COURT">HPSB VOLLEYBALL COURT</option>
-                                        <option value="CAFETERIA BASEMENT">CAFETERIA BASEMENT</option>
-                                        <option value="CAFETERIA HPSB 11TH FLOOR">CAFETERIA HPSB 11TH FLOOR</option>
+                <option value="HPSB BASKETBALL COURT">HPSB BASKETBALL COURT</option>
+                <option value="HPSB VOLLEYBALL COURT">HPSB VOLLEYBALL COURT</option>
+                <option value="CAFETERIA BASEMENT">CAFETERIA BASEMENT</option>
+                <option value="CAFETERIA HPSB 11TH FLOOR">CAFETERIA HPSB 11TH FLOOR</option>
 
                 </select>
         </div>
@@ -232,9 +232,9 @@
                 <select id="transferEquipment" name="transferEquipment" class="form-select" data-required-group="transfer" required>
                     <option value="">Select Equipment</option>
                      <option value="Desktop PC Unit">Desktop PC Unit</option>
-                                         <option value="Office Desk">Office Desk</option>
-                                         <option value="Filing Cabinet">Filing Cabinet (4-Drawer)</option>
-                                         <option value="Table">Table</option>
+                    <option value="Office Desk">Office Desk</option>
+                    <option value="Filing Cabinet">Filing Cabinet (4-Drawer)</option>
+                    <option value="Table">Table</option>
                     </select>
             </div>
             <div class="col-md-4 form-group-custom">
@@ -252,22 +252,22 @@
                 <select id="transferFrom" name="transferFrom" class="form-select" data-required-group="transfer" required>
                     <option value="">Select Origin</option>
                     <option value="Oval">OVAL</option>
-                                         <option value="Admin Office">Admin Office</option>
-                                         <option value="BLDG 1">BLDG 1</option>
-                                         <option value="HPSB">HPSB</option>
+                    <option value="Admin Office">Admin Office</option>
+                    <option value="BLDG 1">BLDG 1</option>
+                    <option value="HPSB">HPSB</option>
 
-                    </select>
+                </select>
             </div>
             <div class="col-md-6 form-group-custom">
                 <label for="transferTo" class="form-label">Transfer To Location</label>
                 <select id="transferTo" name="transferTo" class="form-select" data-required-group="transfer" required>
                     <option value="">Select Destination</option>
-                     <option value="">Select Destination</option>
-                                         <option value="Oval">OVAL</option>
-                                         <option value="Admin Office">Admin Office</option>
-                                         <option value="BLDG 1">BLDG 1</option>
-                                         <option value="HPSB">HPSB</option>
-                    </select>
+                    <option value="">Select Destination</option>
+                    <option value="Oval">OVAL</option>
+                    <option value="Admin Office">Admin Office</option>
+                    <option value="BLDG 1">BLDG 1</option>
+                    <option value="HPSB">HPSB</option>
+                </select>
             </div>
         </div>
     </div>
@@ -312,27 +312,37 @@
                                  </tr>
                             </thead>
                             <tbody>
-                                {% for req in pending_requests %}
-                                <tr>
-                                     <td>{{ req[0] }}</td> <td>{{ req[1] }}</td> <td>{{ req[2] }}</td> <td>{{ req[4] }}</td> <td>{{ req[9].strftime('%Y-%m-%d %I:%M %p') }}</td> <td><span class="badge bg-warning text-dark">{{ req[8] }}</span></td> <td>
-                                         <div class="d-flex gap-1">
-                                            <button class="btn btn-sm btn-outline-info" onclick="showMessage('Request Details', 'Details for Request ID: {{ req[0] }} (Type: {{ req[1] }}).', 'info')">
-                                                <i class="bi bi-eye"></i> View
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-warning" onclick="showMessage('Request Cancelled', 'Request {{ req[0] }} has been marked for cancellation (Placeholder).', 'warning')">
-                                                <i class="bi bi-x-circle"></i> Cancel
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="showConfirm('Confirm Delete', 'Are you sure you want to permanently delete Request ID: {{ req[0] }}? This cannot be undone.', () => showMessage('Request Deleted', 'Request {{ req[0] }} has been deleted (Placeholder).', 'danger'))">
-                                                <i class="bi bi-trash"></i> Delete
-                                            </button>
-                                         </div>
-                                     </td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                     <td colspan="7" class="text-center text-muted py-4">No pending requests found.</td>
-                                </tr>
-                                {% endfor %}
+                              {% for req in pending_requests %}
+                                    <tr>
+                                        <td>{{ req[0] }}</td>
+                                        <td>{{ req[1] }}</td>
+                                        <td>{{ req[2] }}</td>
+                                        <td>{{ req[4] }}</td>
+                                        <td>{{ req[9].strftime('%Y-%m-%d %I:%M %p') }}</td>
+                                        <td><span class="badge bg-warning text-dark">{{ req[8] }}</span></td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <button class="btn btn-sm btn-outline-info"
+                                                        onclick="showMessage('Request Details', 'Details for Request ID: {{ req[0] }} (Type: {{ req[1] }}).', 'info')">
+                                                    <i class="bi bi-eye"></i> View
+                                                </button>
+
+                                                <form method="POST"
+                                                    action="{{ url_for('cancel_request', req_id=req[0]) }}"
+                                                    onsubmit="return confirm('Are you sure you want to cancel this request?');"
+                                                    style="display:inline;">
+                                                    <button type="submit" class="btn btn-sm btn-outline-warning">
+                                                        <i class="bi bi-x-circle"></i> Cancel
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted">No pending requests found.</td>
+                                    </tr>
+                                    {% endfor %}
                                 </tbody>
                         </table>
                     </div>
@@ -358,48 +368,63 @@
                     <option value="status-asc">Sort by Status</option>
                 </select>
             </div>
-            <div class="table-responsive">
-                <table class="table table-hover table-striped" id="historyTable">
-                   <thead class="table-dark">
-                        <tr>
-                            <th>#</th>
-                            <th>Type</th>
-                            <th>Item / Equipment</th>
-                            <th>Date Requested</th>
-                            <th>Status</th>
-                            <th>Actions</th> </tr>
-                    </thead>
-                    <tbody>
-                        {% for req in history_requests %}
-                        <tr>
-                            <td>{{ req[0] }}</td> <td>{{ req[1] }}</td> <td>{{ req[2] }}</td> <td>{{ req[9].strftime('%Y-%m-%d') }}</td> <td>
-                                {% if req[8] == 'Approved' %}
-                                    <span class="badge bg-success">Approved / Closed</span>
-                                {% elif req[8] == 'Rejected' %}
-                                    <span class="badge bg-danger">Rejected</span>
-                                {% else %}
-                                    <span class="badge bg-secondary">{{ req[8] }}</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div class="d-flex gap-1">
-                                    <button class="btn btn-sm btn-outline-info" onclick="showMessage('Request Details', 'History Details for Request ID: {{ req[0] }} (Type: {{ req[1] }}).', 'info')">
-                                        <i class="bi bi-eye"></i> View
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="showConfirm('Confirm Delete History', 'Are you sure you want to permanently remove Request ID: {{ req[0] }} from your history?', () => showMessage('History Deleted', 'Request {{ req[0] }} has been removed from history (Placeholder).', 'danger'))">
-                                        <i class="bi bi-trash"></i> Delete
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">No completed requests found in your history.</td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                </table>
-            </div>
+           <div class="table-responsive">
+    <table class="table table-hover table-striped" id="historyTable">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Type</th>
+                <th>Item / Equipment</th>
+                <th>Date Requested</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in history_requests %}
+            <tr>
+                <td>{{ req[0] }}</td>
+                <td>{{ req[1] }}</td>
+                <td>{{ req[2] }}</td>
+                <td>{{ req[9].strftime('%Y-%m-%d') }}</td>
+                <td>
+                    {% if req[8] == 'Approved' %}
+                        <span class="badge bg-success">Approved / Closed</span>
+                    {% elif req[8] == 'Rejected' %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ req[8] }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex gap-1">
+                        <button class="btn btn-sm btn-outline-info"
+                            onclick="showMessage('Request Details', 'History Details for Request ID: {{ req[0] }} (Type: {{ req[1] }}).', 'info')">
+                            <i class="bi bi-eye"></i> View
+                        </button>
+
+                        <form method="POST"
+                              action="{{ url_for('delete_request', req_id=req[0]) }}"
+                              onsubmit="return confirm('Are you sure you want to delete this record from history?');"
+                              style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                    No completed requests found in your history.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
         </div> 
     </div> 
 </div>

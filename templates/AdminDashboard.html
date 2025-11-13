@@ -32,11 +32,13 @@
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <div class="admin-header d-flex justify-content-between align-items-center">
-            <h1><i class="bi bi-person-gear me-2"></i>Admin Review Panel</h1>
-            <a href="{{ url_for('logout') }}" class="btn btn-warning"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    <div class="admin-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <img src="{{ url_for('static', filename='WEBLOGO.png') }}" alt="e-PERMIT Logo" class="logo-img me-3" style="width: 50px; height: 50px;">
+            <h1><i></i>Admin Review Panel</h1>
         </div>
+        <a href="#" id="logoutLink" class="btn btn-warning"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -67,6 +69,9 @@
         <div class="tab-content" id="adminTabsContent">
             
             <div class="tab-pane fade {% if active_tab == 'pending' %}show active{% endif %}" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="pendingSearchInput" placeholder="Search by ID, User, Type, or Item...">
+                </div>
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover" id="adminPendingTable">
                         <thead class="ccis-header">
@@ -86,10 +91,15 @@
                             <tr>
                                 <td>{{ req[0] }}</td> <td>{{ req[1] }}</td> <td>{{ req[2] }}</td> <td>{{ req[3] }}</td> <td>{{ req[4] }}</td> <td>{{ req[5] }}</td> <td>
                                     <button 
-                                        class="btn btn-sm btn-info text-white" 
+                                        class="btn btn-sm btn-info text-white view-details" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#detailsModal"
                                         data-id="{{ req[0] }}"
+                                        data-user="{{ req[1] }}"
+                                        data-type="{{ req[2] }}"
+                                        data-item="{{ req[3] }}"
+                                        data-qty="{{ req[4] }}"
+                                        data-date_needed="{{ req[5] }}"
                                         data-purpose="{{ req[6] or 'N/A' }}"
                                         data-from="{{ req[7] or 'N/A' }}"
                                         data-to="{{ req[8] or 'N/A' }}"
@@ -104,6 +114,7 @@
                                         <input type="hidden" name="action" value="Approved">
                                         <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i> Approve</button>
                                     </form>
+                                    
                                     <form action="{{ url_for('update_request_status') }}" method="post" style="display:inline;">
                                         <input type="hidden" name="request_id" value="{{ req[0] }}">
                                         <input type="hidden" name="action" value="Rejected">
@@ -111,17 +122,20 @@
                                     </form>
                                 </td>
                             </tr>
-                            {% else %}
-                            <tr>
+                            {% endfor %}
+                            
+                            <tr id="pendingNoRecords" style="display: {% if pending_requests|length > 0 %}none{% else %}table-row{% endif %};">
                                 <td colspan="8" class="text-center text-muted py-4">No pending requests require action.</td>
                             </tr>
-                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
             
             <div class="tab-pane fade {% if active_tab == 'history' %}show active{% endif %}" id="history" role="tabpanel" aria-labelledby="history-tab">
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="historySearchInput" placeholder="Search by ID, User, Item, or Status...">
+                </div>
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover" id="adminHistoryTable">
                         <thead class="ccis-header">
@@ -148,10 +162,15 @@
                                 
                                 <td>
                                     <button 
-                                        class="btn btn-sm btn-info text-white" 
+                                        class="btn btn-sm btn-info text-white view-details" 
                                         data-bs-toggle="modal" 
                                         data-bs-target="#detailsModal"
                                         data-id="{{ req[0] }}"
+                                        data-user="{{ req[1] }}"
+                                        data-type="{{ req[2] }}"
+                                        data-item="{{ req[3] }}"
+                                        data-qty="{{ req[4] }}"
+                                        data-date_needed="{{ req[5] }}"
                                         data-purpose="{{ req[6] or 'N/A' }}"
                                         data-from="{{ req[7] or 'N/A' }}"
                                         data-to="{{ req[8] or 'N/A' }}"
@@ -160,17 +179,18 @@
                                     </button>
                                 </td>
                             </tr>
-                            {% else %}
-                            <tr>
+                            {% endfor %}
+                            
+                            <tr id="historyNoRecords" style="display: {% if history_requests|length > 0 %}none{% else %}table-row{% endif %};">
                                 <td colspan="7" class="text-center text-muted py-4">No completed requests in history.</td>
                             </tr>
-                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
 
-        </div> </div>
+        </div> 
+    </div>
 
     <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -180,11 +200,18 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body details-modal-body">
+                    <p><strong>Requested By:</strong> <span id="modal-user"></span></p>
+                    <p><strong>Request Type:</strong> <span id="modal-type"></span></p>
+                    <hr>
+                    <p><strong>Item / Equipment:</strong> <span id="modal-item"></span></p>
+                    <p><strong>Quantity:</strong> <span id="modal-qty"></span></p>
+                    <p><strong>Date Needed:</strong> <span id="modal-date-needed"></span></p>
+                    <hr>
                     <p><strong>Purpose/Event:</strong> <span id="modal-purpose"></span></p>
                     <p><strong>Location From:</strong> <span id="modal-from"></span></p>
                     <p><strong>Location To:</strong> <span id="modal-to"></span></p>
                     <hr>
-                    <p><strong>Date Requested:</strong> <span id="modal-requested"></span></p>
+                    <p><strong>Date Submitted:</strong> <span id="modal-requested"></span></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -192,7 +219,25 @@
             </div>
         </div>
     </div>
-
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="logoutModalLabel"><i class="bi bi-exclamation-triangle-fill me-2"></i> Confirm Logout</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to end your administrative session and log out?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <a id="confirmLogoutButton" href="{{ url_for('logout') }}" class="btn btn-danger">
+                        <i class="bi bi-box-arrow-right"></i> Log Out
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
@@ -201,31 +246,100 @@
             const button = event.relatedTarget;
             
             const id = button.getAttribute('data-id');
+            const user = button.getAttribute('data-user');
+            const type = button.getAttribute('data-type');
+            const item = button.getAttribute('data-item');
+            const qty = button.getAttribute('data-qty');
+            const dateNeeded = button.getAttribute('data-date_needed');
+
             const purpose = button.getAttribute('data-purpose');
             const from = button.getAttribute('data-from');
             const to = button.getAttribute('data-to');
             const requested = button.getAttribute('data-requested');
             
             document.getElementById('modal-id').textContent = id;
+            document.getElementById('modal-user').textContent = user;
+            document.getElementById('modal-type').textContent = type;
+            document.getElementById('modal-item').textContent = item;
+            document.getElementById('modal-qty').textContent = qty;
+            document.getElementById('modal-date-needed').textContent = dateNeeded;
             document.getElementById('modal-purpose').textContent = purpose;
             document.getElementById('modal-from').textContent = from;
             document.getElementById('modal-to').textContent = to;
             document.getElementById('modal-requested').textContent = requested;
         });
         
+        function filterTable(tableId, inputId) {
+            const input = document.getElementById(inputId);
+            const filter = input.value.toUpperCase();
+            const table = document.getElementById(tableId);
+            const tbody = table.querySelector('tbody');
+            
+            const allRows = Array.from(tbody.querySelectorAll('tr'));
+            
+            const noRecordsId = tableId === 'adminPendingTable' ? 'pendingNoRecords' : 'historyNoRecords';
+            const noRecordsRow = document.getElementById(noRecordsId);
+            const checkColumns = tableId === 'adminPendingTable' ? 6 : 6; 
+
+            const dataRows = allRows.filter(row => row.id !== noRecordsId);
+
+            let visibleRowCount = 0;
+
+            dataRows.forEach(row => {
+                let display = false;
+
+                for (let j = 0; j < checkColumns; j++) { 
+                    const td = row.cells[j];
+                    if (td && td.textContent.toUpperCase().indexOf(filter) > -1) {
+                        display = true;
+                        break;
+                    }
+                }
+                
+                row.style.display = display ? '' : 'none';
+                if (display) {
+                    visibleRowCount++;
+                }
+            });
+            
+            if (noRecordsRow) {
+                if (visibleRowCount === 0) {
+                     noRecordsRow.cells[0].textContent = dataRows.length > 0 ? "No matching records found." : 
+                        (tableId === 'adminPendingTable' ? "No pending requests require action." : "No completed requests in history.");
+                     noRecordsRow.style.display = 'table-row';
+                } else {
+                    noRecordsRow.style.display = 'none';
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            const activeTab = new URLSearchParams(window.location.search).get('tab');
+            const logoutTrigger = document.getElementById('logoutLink');
+            if (logoutTrigger) {
+                logoutTrigger.addEventListener('click', (e) => {
+                    e.preventDefault(); 
+                    const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+                    logoutModal.show(); 
+                });
+            }
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const activeTab = urlParams.get('tab');
+            const historyTabButton = document.getElementById('history-tab');
+            const pendingTabButton = document.getElementById('pending-tab');
+
             if (activeTab === 'history') {
-                const historyTabButton = document.getElementById('history-tab');
                 if (historyTabButton) {
                     new bootstrap.Tab(historyTabButton).show();
                 }
             } else {
-                const pendingTabButton = document.getElementById('pending-tab');
                 if (pendingTabButton) {
                     new bootstrap.Tab(pendingTabButton).show();
                 }
             }
+            
+            document.getElementById('pendingSearchInput').addEventListener('keyup', () => filterTable('adminPendingTable', 'pendingSearchInput'));
+            document.getElementById('historySearchInput').addEventListener('keyup', () => filterTable('adminHistoryTable', 'historySearchInput'));
         });
     </script>
 </body>
