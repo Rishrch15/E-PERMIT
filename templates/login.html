@@ -8,45 +8,59 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-        * { margin: 0; 
+        * { 
+            margin: 0; 
             padding: 0; 
             box-sizing: border-box; 
-            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
+
+
             text-decoration: none; 
-            list-style: none; }
+            list-style: none; 
+        }
         body {
             display: flex; 
+
             justify-content: center; 
             align-items: center;
+            flex-direction: column; 
             min-height: 100vh;
             background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
         }
         
         .header {
             position: fixed; 
-            top: 0;
-            left: 0;
+            top: 0; 
+            left: 0; 
             width: 100%;
             background-color: #060e33; 
             padding: 15px 50px;
-            display: flex;
-            justify-content: space-between;
+            display: flex; 
+            justify-content: space-between; 
             align-items: center;
             z-index: 100; 
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
         .header-logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: #ffffff;
+            display: flex; 
+            align-items: center; 
+            font-size: 24px; 
+            font-weight: 700; 
+            color: #ffffff; 
             letter-spacing: 1px;
         }
 
+        .header-logo img {
+            height: 40px; 
+            width: auto; 
+            margin-right: 12px; 
+        }
+
         .header-nav a {
-            color: #ffffff;
-            margin-left: 30px;
-            font-weight: 500;
+            color: #ffffff; 
+            margin-left: 30px; 
+            font-weight: 500; 
             padding: 5px 0;
             transition: color 0.3s;
         }
@@ -57,33 +71,33 @@
         
         .header-nav .login-btn-header {
             background-color: #ff1500; 
+            
             color: white;
-            padding: 8px 18px;
-            border-radius: 5px;
+            padding: 8px 18px; 
+            
+            border-radius: 5px; 
+            
             font-weight: 600;
-            margin-left: 20px;
+            margin-left: 20px; 
+            
             transition: background-color 0.3s;
             border-bottom: none !important; 
         }
         .header-nav .login-btn-header:hover {
-            background-color: #ff1500;
-            color: white;
+            background-color: #e51300;
         }
 
         .container {
-            position: relative;
-            width: 850px; 
-            height: 550px;
-            background: #fff; 
-            margin: 20px;
-            border-radius: 30px;
-            box-shadow: 0 0 30px rgba(0, 0, 0, .2);
-            overflow: hidden;
+            position: relative; width: 850px; height: 550px;
+            background: #fff; margin: 20px;
+            border-radius: 30px; box-shadow: 0 0 30px rgba(0, 0, 0, .2);
+            overflow: hidden; 
             margin-top: 80px; 
+            margin-bottom: 60px; 
         }
         .container h1 { 
             font-size: 36px; 
-            margin: -10px 0; 
+            margin: 10px 0; 
         }
         .container p { 
             font-size: 14.5px; 
@@ -92,6 +106,7 @@
         form { 
             width: 100%; 
         }
+        
         .form-box {
             position: absolute; 
             right: 0; 
@@ -99,6 +114,8 @@
             height: 100%;
             background: #fff; 
             display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
             align-items: center;
             color: #333; 
             text-align: center; 
@@ -106,41 +123,132 @@
             z-index: 1; 
             transition: .6s ease-in-out 1.2s, visibility 0s 1s;
         }
+        
         .container.active .form-box { 
             right: 50%; 
         }
-        .form-box.register { 
-            visibility: hidden; 
+        .form-box.register {
+             visibility: hidden; 
         }
         .container.active .form-box.register { 
             visibility: visible; 
         }
-        .input-box {
-             position: relative; margin: 30px 0;
-             }
-        .input-box input {
-            width: 100%; padding: 13px 50px 13px 20px; background: #eee;
-            border-radius: 8px; border: none; outline: none; font-size: 16px;
-            color: #333; font-weight: 500;
+
+        .form-box.otp-verify, .form-box.forgot-password {
+            visibility: hidden;
+            left: -50%; 
+            right: auto;
+            transition: 0.6s ease-in-out;
+            padding: 40px;
         }
-        .input-box input::placeholder { color: #888; font-weight: 400; }
+        
+        .container.otp-mode { 
+            width: 450px; 
+            transition: 0.6s ease-in-out; 
+        }
+        .container.otp-mode .form-box.otp-verify { 
+            left: 0; 
+            visibility: visible; 
+            width: 100%; 
+        }
+        .container.otp-mode .form-box.login,
+        .container.otp-mode .form-box.register,
+        .container.otp-mode .form-box.forgot-password { 
+            visibility: hidden; 
+            pointer-events: none; 
+            right: 100%; 
+        }
+        .container.otp-mode .toggle-box { 
+            display: none; 
+        }
+
+
+        .container.forgot-mode {
+             width: 850px; 
+            transition: 0.6s ease-in-out; 
+        }
+        .container.forgot-mode .form-box.forgot-password { 
+            left: 50%; 
+            visibility: visible; 
+            width: 50%; 
+            height: 100%;
+        }
+        .container.forgot-mode .form-box.login,
+        .container.forgot-mode .form-box.register,
+        .container.forgot-mode .form-box.otp-verify { 
+            visibility: hidden; 
+            pointer-events: none; 
+            right: 100%; 
+        }
+        .container.forgot-mode .toggle-box { 
+            display: block; 
+        }
+        .container.forgot-mode .toggle-box::before { 
+            left: -250%; 
+        } 
+        
+        .input-box { 
+            position: relative; 
+            margin: 30px 0; 
+        }
+        .input-box input {
+            width: 100%; 
+            padding: 13px 50px 13px 20px; 
+            background: #eee;
+            border-radius: 8px; 
+            border: none; 
+            outline: none; 
+            font-size: 16px;
+            color: #333; 
+            font-weight: 500;
+        }
+        .input-box input::placeholder { 
+            color: #888; 
+            font-weight: 400; 
+        }
         .input-box i {
-            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            position: absolute; 
+            right: 20px; 
+            top: 50%; 
+            transform: translateY(-50%);
             font-size: 20px;
         }
-        .forgot-link { margin: -15px 0 15px; }
-        .forgot-link a { font-size: 14.5px; color: #333; }
+        
+        .forgot-link { 
+            text-align: center;
+            margin: 10px 0 25px; 
+            font-size: 14.5px;
+            font-weight: 500;
+        }
+        .forgot-link a { 
+            color: #333; 
+            transition: color 0.2s;
+            text-decoration: none; 
+        }
+        .forgot-link a:hover {
+             color: #ff1500;
+             text-decoration: underline;
+        }
+        
         .btn {
-            width: 100%; height: 48px; background: #ff1500;
-            border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, .1);
-            border: none; cursor: pointer; font-size: 16px; color: #fff;
+            width: 100%; 
+            height: 48px; 
+            background: #ff1500;
+            border-radius: 8px;
+             
+            box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+            border: none; 
+            cursor: pointer; 
+            font-size: 16px; 
+            color: #fff;
             font-weight: 600;
         }
         .toggle-box { 
             position: absolute; 
-            width: 100%; 
-            height: 100%; 
+            width: 100%;
+             height: 100%; 
         }
+
         .toggle-box::before {
             content: ''; 
             position: absolute; 
@@ -151,30 +259,27 @@
             border-radius: 0px; 
             z-index: 2;
             transition: 1.8s ease-in-out;
-            border-radius: 0px; 
-
-
         }
         .container.active .toggle-box::before { 
-            left: 50%; 
-        }
+            left: 50%;
+         }
+        
         .toggle-panel {
             position: absolute;
-            width: 50%; 
+             width: 50%; 
             height: 100%; 
             color: #fff;
             display: flex; 
             flex-direction: column; 
             justify-content: center; 
-            align-items: center;
+            align-items: center; 
+            padding: 40px;
             z-index: 2; 
             transition: .6s ease-in-out;
-            
         }
         .toggle-panel.toggle-left { 
             left: 0; 
-            transition-delay: 1.2s;
-             
+            transition-delay: 1.2s; 
         }
         .container.active .toggle-panel.toggle-left { 
             left: -50%; 
@@ -186,7 +291,9 @@
         }
         .container.active .toggle-panel.toggle-right { 
             right: 0; 
-            transition-delay: 1.2s; }
+            transition-delay: 1.2s; 
+        }
+        
         .toggle-panel p { 
             margin-bottom: 20px; 
         }
@@ -197,55 +304,92 @@
             border: 2px solid #fff; 
             box-shadow: none;
         } 
+        
+        .logo-container {
+            display: flex; 
+            flex-direction: column; 
+            align-items: 
+            center; margin-bottom: 15px;
+        }
+        .logo-img { 
+            width: 100px; 
+            height: 100px; 
+        }
+        .logo-text { 
+            font-size: 36px; 
+            font-weight: 700; 
+            color: #fff; 
+            margin-top: 5px; 
+        }
+
         .flash-messages {
-            position: absolute; 
+            position: fixed; 
             top: 70px; 
             left: 50%; 
             transform: translateX(-50%);
-            width: 80%; 
+            width: 90%; 
             max-width: 400px; 
             z-index: 101; 
         }
         .flash-messages .alert {
-            padding: 10px 20px; 
-            margin-bottom: 10px; 
-            border-radius: 5px;
-            font-size: 14px; 
-            text-align: center; 
-            color: #333; 
-            border: 1px solid transparent;
+            padding: 10px 20px; margin-bottom: 10px; border-radius: 5px;
+            font-size: 14px; text-align: center; color: #333; 
+            border: 1px solid transparent; opacity: 1; transition: opacity 0.5s;
         }
-        .alert.success { 
-            background-color: #d4edda; 
-            border-color: #c3e6cb; 
-            color: #155724; 
+        .alert.success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .alert.danger { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .alert.warning { background-color: #fff3cd; border-color: #ffeeba; color: #856404; }
+        .alert.info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        
+        footer {
+            position: fixed; 
+            bottom: 0; 
+            width: 100%; 
+            background: transparent; 
+            text-align: center;
+            padding: 10px 0;
+            color: #000; 
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 99;
         }
-        .alert.danger { 
-            background-color: #f8d7da; 
-            border-color: #f5c6cb; 
-            color: #721c24; 
-        }
-        .alert.warning {
-            background-color: #fff3cd; 
-            border-color: #ffeeba; 
-            color: #856404; }
-        .alert.info { 
-            background-color: #d1ecf1; 
-            border-color: #bee5eb; 
-            color: #0c5460; }
+
         @media screen and (max-width: 650px) {
-            .container {
-                 height: calc(100vh - 40px); 
-                 }
+            .container { 
+                height: calc(100vh - 100px); 
+                width: 90%; 
+            }
             .form-box { 
                 bottom: 0; 
                 width: 100%; 
                 height: 70%; 
+                right: 0; 
+                left: 0;
             }
             .container.active .form-box { 
                 right: 0; 
                 bottom: 30%; 
             }
+            .container.active .form-box.register { 
+                right: 0; 
+                bottom: 0; 
+            }
+            .container.otp-mode, .container.forgot-mode { 
+                width: 90%; 
+            }
+            .container.otp-mode .form-box.otp-verify, 
+            .container.forgot-mode .form-box.forgot-password { 
+                left: 0; 
+                visibility: visible; 
+            }
+            .container.forgot-mode .form-box.forgot-password { 
+                width: 100%; 
+                left: 0; 
+            } 
+            .container.forgot-mode .toggle-box { 
+                display: none; 
+            } 
+            
             .toggle-box::before { 
                 left: 0; 
                 top: -270%; 
@@ -257,10 +401,6 @@
                 left: 0; 
                 top: 70%; 
             }
-            .container.active .toggle-panel.toggle-left {
-                 left: 0; 
-                 top: -30%; 
-                 }
             .toggle-panel { 
                 width: 100%; 
                 height: 30%; 
@@ -269,102 +409,11 @@
                 top: 0; 
             }
             .toggle-panel.toggle-right { 
-                right: 0; 
                 bottom: -30%; 
+                right: 0; 
             }
             .container.active .toggle-panel.toggle-right { 
                 bottom: 0; 
-            }
-            .container { 
-                margin-top: 60px; 
-            } 
-        }
-        @media screen and (max-width: 400px) {
-            .form-box { 
-                 padding: 20px;
-                 }
-            .toggle-panel h1 { 
-                font-size: 30px; 
-            }
-        }
-
-          .header-logo {
-            display: flex;
-            align-items: center; 
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: 1px;
-        }
-
-        .header-logo img {
-            height: 60px; 
-            width: auto;
-            margin-right: 12px; 
-        }
-
-        .logo-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .logo-img {
-            width: 150px;
-            height: 150px;
-        }
-
-        .logo-text {
-            font-size: 36px;
-            font-weight: 700;
-            color: #fff;
-            margin-top: 5px;
-        }
-
-        footer {
-            position: fixed;
-            bottom: 10px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            font-size: 14px;
-            color: #333;
-            opacity: 0.8;
-            z-index: 99;
-        }
-        
-        .form-box.otp-verify {
-            visibility: hidden;
-            left: -50%; 
-            right: auto;
-            width: 100%; 
-            transition: 0.6s ease-in-out;
-        }
-
-        .container.otp-mode {
-            width: 450px; 
-            transition: 0.6s ease-in-out;
-        }
-        
-        .container.otp-mode .form-box.otp-verify {
-            left: 0;
-            visibility: visible;
-        }
-
-        .container.otp-mode .form-box.login,
-        .container.otp-mode .form-box.register {
-            visibility: hidden;
-            pointer-events: none;
-            right: 100%; 
-        }
-
-        .container.otp-mode .toggle-box {
-            display: none; 
-        }
-
-        @media screen and (max-width: 650px) {
-            .container.otp-mode {
-                width: 90%;
             }
         }
     </style>
@@ -378,7 +427,7 @@
     </a>
     <nav class="header-nav">
         <a href="/">Home</a>
-        <a href="/login" class="login-btn-header active">Log In</a>
+        <a href="{{ url_for('login') }}" class="login-btn-header active">Log In</a>
     </nav>
 </header>
     <div class="flash-messages">
@@ -390,6 +439,7 @@
             {% endif %}
         {% endwith %}
     </div>
+    
     <div class="container">
         <div class="form-box login">
             <form action="{{ url_for('login') }}" method="POST">
@@ -403,11 +453,12 @@
                     <i class='bx bxs-lock-alt'></i>
                 </div>
                 <div class="forgot-link">
-                    <a href="#">Forgot Password?</a>
+                    <a href="#" class="forgot-password-link">Forgot Password?</a>
                 </div>
                 <button type="submit" class="btn">Login</button>
             </form>
         </div>
+        
         <div class="form-box register">
             <form action="{{ url_for('register') }}" method="POST">
                 <h1>Registration</h1>
@@ -436,11 +487,27 @@
                     <i class='bx bx-key'></i>
                 </div>
                 <button type="submit" class="btn">Verify Code</button>
-                <div class="forgot-link">
-                    <a href="{{ url_for('home') }}">Cancel and Return to Home</a>
+                <div class="forgot-link" style="text-align: center;">
+                    <a href="{{ url_for('home') }}">Cancel and Return to Login</a>
                 </div>
             </form>
         </div>
+
+        <div class="form-box forgot-password">
+            <form action="{{ url_for('forgot_password_request') }}" method="POST">
+                <h1>Forgot Password</h1>
+                <p>Enter your email address and we'll send you a link to reset your password.</p>
+                <div class="input-box">
+                    <input type="email" placeholder="Enter Email" name="email" required>
+                    <i class='bx bxs-envelope'></i>
+                </div>
+                <button type="submit" class="btn">Send Reset Link</button>
+                <div class="forgot-link" style="text-align: center; margin-top: 20px;">
+                    <a href="#" class="back-to-login">Back to Login</a>
+                </div>
+            </form>
+        </div>
+
         <div class="toggle-box">
             <div class="toggle-panel toggle-left">
                 <div class="logo-container">
@@ -460,9 +527,7 @@
             </div>
         </div>
     </div>
-    <div style="text-align: center; margin-top: 15px;">
     
-    </div>
     <footer>
         © IRISH ROCHA 2025
     </footer>
@@ -471,8 +536,10 @@
         const container = document.querySelector('.container');
         const registerBtn = document.querySelector('.register-btn');
         const loginBtn = document.querySelector('.login-btn');
-        const flashMessages = document.querySelector('.flash-messages');
         
+        const forgotPasswordLink = document.querySelector('.forgot-password-link'); 
+        const backToLoginLink = document.querySelector('.back-to-login');
+
         function hideFlashMessages() {
             setTimeout(() => {
                 const alerts = document.querySelectorAll('.flash-messages .alert');
@@ -487,29 +554,50 @@
         function adjustFormViewOnFlash() {
             const alerts = document.querySelectorAll('.flash-messages .alert');
             let isOtpRedirect = false;
+            let isForgotRedirect = false;
+            
             alerts.forEach(alert => {
                 if (alert.classList.contains('info') && alert.textContent.includes('verification code has been sent')) {
                     isOtpRedirect = true;
+                }
+                if (alert.classList.contains('info') && alert.textContent.includes('password reset link has been sent')) {
+                    isForgotRedirect = true;
                 }
             });
 
             if (isOtpRedirect) {
                 container.classList.add('otp-mode');
-                container.classList.remove('active'); 
+                container.classList.remove('active', 'forgot-mode'); 
+            } else if (isForgotRedirect) {
+                container.classList.remove('active', 'otp-mode', 'forgot-mode');
             } else if (alerts.length > 0) {
-                container.classList.remove('active');
+                container.classList.remove('active', 'otp-mode', 'forgot-mode');
             }
         }
 
         registerBtn.addEventListener('click', () => {
             container.classList.add('active');
-            container.classList.remove('otp-mode'); 
+            container.classList.remove('otp-mode', 'forgot-mode'); 
         })
         
         loginBtn.addEventListener('click', () => {
-            container.classList.remove('active');
-            container.classList.remove('otp-mode'); 
+            container.classList.remove('active', 'otp-mode', 'forgot-mode'); 
         })
+
+        if (forgotPasswordLink) {
+            forgotPasswordLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                container.classList.add('forgot-mode');
+                container.classList.remove('active', 'otp-mode');
+            });
+        }
+
+        if (backToLoginLink) {
+            backToLoginLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                container.classList.remove('active', 'otp-mode', 'forgot-mode'); 
+            });
+        }
         
         adjustFormViewOnFlash();
         hideFlashMessages();

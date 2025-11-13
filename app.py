@@ -1,11 +1,12 @@
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 import mysql.connector
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_bcrypt import Bcrypt 
 import random
 import smtplib
 from email.mime.text import MIMEText
+import uuid # For secure token generation
 
 app = Flask(__name__)
 app.secret_key = 'CCIS.123'
@@ -45,6 +46,7 @@ def initialize_db():
 
     cursor = db.cursor()
 
+    # Users Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -54,6 +56,7 @@ def initialize_db():
         )
     """)
 
+    # User Profile Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS user_profile (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -64,6 +67,7 @@ def initialize_db():
         )
     """)
 
+    # Requests Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS requests (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -80,6 +84,16 @@ def initialize_db():
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         )
     """)
+    
+    # Password Reset Tokens Table (NEW)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS password_reset_tokens (
+            token VARCHAR(100) PRIMARY KEY,
+            user_id INT NOT NULL,
+            expires_at TIMESTAMP NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    """)
 
     db.commit()
     cursor.close()
@@ -89,7 +103,7 @@ def initialize_db():
 
 initialize_db()
 
-# ---------------- For OTP ----------------
+# ---------------- EMAIL UTILITIES ----------------
 
 def generate_otp():
     """Generates a simple 6-digit numeric OTP."""
@@ -112,6 +126,30 @@ def send_otp_email(recipient_email, otp_code):
     except Exception as e:
         print(f"Error sending email: {e}", file=sys.stderr)
         return False
+
+def send_reset_email(recipient_email, reset_token):
+    """Sends a password reset link to the recipient's email."""
+    try:
+        # _external=True generates a full URL (needed for email links)
+        reset_url = url_for('reset_password', token=reset_token, _external=True)
+
+        msg = MIMEText(f"You requested a password reset for your E-Permit account. "
+                       f"Click the link below to reset your password:\n\n{reset_url}\n\n"
+                       f"This link will expire shortly (1 hour).")
+        msg['Subject'] = 'E-Permit Password Reset Request'
+        msg['From'] = EMAIL_ADDRESS
+        msg['To'] = recipient_email
+
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server.starttls()
+        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        server.sendmail(EMAIL_ADDRESS, recipient_email, msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        print(f"Error sending password reset email: {e}", file=sys.stderr)
+        return False
+
 
 # ---------------- HOME ----------------
 @app.route('/')
@@ -228,7 +266,7 @@ def login():
     password = request.form['password']  
 
     cursor.execute("SELECT id, username, password FROM users WHERE email=%s", (email,))
-    user = cursor.fetchone()  
+    user = cursor.fetchone()    
     cursor.close()
     db.close()
 
@@ -244,6 +282,112 @@ def login():
     else:
         flash("Invalid email or password.", "danger")
         return render_template('login.html')
+
+# ---------------- FORGOT PASSWORD ----------------
+
+@app.route('/forgot-password-request', methods=['POST']) 
+def forgot_password_request():
+    """
+    Handles the request to start the password reset process (sending the email).
+    Generates a token and stores it in the database.
+    """
+    email = request.form.get('email')
+    
+    db = get_db_connection()
+    if not db:
+        flash("Password reset failed due to a database error.", "danger")
+        return redirect(url_for('login'))
+    
+    cursor = db.cursor()
+    cursor.execute("SELECT id FROM users WHERE email=%s", (email,))
+    user = cursor.fetchone()
+    
+    flash("A password reset link has been sent to your email if an account exists.", 'success')
+    
+    if user:
+        user_id = user[0]
+        reset_token = str(uuid.uuid4()) 
+        expires_at = datetime.now() + timedelta(hours=1) 
+
+        try:
+            cursor.execute("DELETE FROM password_reset_tokens WHERE user_id = %s", (user_id,))
+            
+            cursor.execute(
+                "INSERT INTO password_reset_tokens (token, user_id, expires_at) VALUES (%s, %s, %s)",
+                (reset_token, user_id, expires_at)
+            )
+            db.commit()
+            
+            if not send_reset_email(email, reset_token):
+                 print(f"WARNING: Failed to send reset email for user {user_id}", file=sys.stderr)
+
+        except Exception as e:
+            print(f"Error generating/saving reset token: {e}", file=sys.stderr)
+        finally:
+            cursor.close()
+            db.close()
+    else:
+        cursor.close()
+        db.close()
+
+    return redirect(url_for('login'))
+
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    """
+    Handles the actual password reset after the user clicks the link in their email.
+    """
+    db = get_db_connection()
+    if not db:
+        flash("Database error during password reset.", "danger")
+        return redirect(url_for('login'))
+        
+    cursor = db.cursor()
+    
+    cursor.execute(
+        "SELECT user_id FROM password_reset_tokens WHERE token=%s AND expires_at > %s",
+        (token, datetime.now())
+    )
+    token_data = cursor.fetchone()
+    
+    if not token_data:
+        cursor.close()
+        db.close()
+        flash("The password reset link is invalid or has expired. Please request a new one.", 'danger')
+        return redirect(url_for('login'))
+
+    user_id = token_data[0]
+
+    if request.method == 'POST':
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if not new_password or new_password != confirm_password:
+            flash("Passwords do not match or are empty.", 'danger')
+            return render_template('reset_password.html', token=token)
+
+        hashed_password = bcrypt.generate_password_hash(new_password).decode('utf-8')
+
+        try:
+            cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, user_id))
+            
+            cursor.execute("DELETE FROM password_reset_tokens WHERE token = %s", (token,))
+            db.commit()
+
+            flash("Your password has been successfully reset! You can now log in.", 'success')
+            return redirect(url_for('login'))
+        except Exception as e:
+            print(f"Error updating password: {e}", file=sys.stderr)
+            flash("An error occurred while resetting the password. Please try again.", 'danger')
+            return render_template('reset_password.html', token=token)
+        finally:
+            cursor.close()
+            db.close()
+
+    cursor.close()
+    db.close()
+    return render_template('reset_password.html', token=token)
 
 
 # ---------------- LANDING Page----------------
@@ -299,7 +443,7 @@ def landing():
 
     cursor.execute("""
         SELECT id, request_type, item, quantity, date_needed, purpose, 
-               location_from, location_to, status, date_requested
+                location_from, location_to, status, date_requested
         FROM requests
         WHERE user_id=%s
         ORDER BY date_requested DESC
@@ -418,17 +562,25 @@ def cancel_request(req_id):
 
 @app.route('/delete_request/<int:req_id>', methods=['POST'])
 def delete_request(req_id):
-    conn = mysql.connector.connect(**DB_CONFIG)
-    cursor = conn.cursor()
+    db = get_db_connection()
+    if not db:
+        flash("Database connection failed.", "danger")
+        return redirect(url_for('landing'))
+        
+    cursor = db.cursor()
 
-    cursor.execute("DELETE FROM requests WHERE id = %s LIMIT 1", (req_id,))
-    conn.commit()
+    try:
+        cursor.execute("DELETE FROM requests WHERE id = %s LIMIT 1", (req_id,))
+        db.commit()
+        flash("Request has been deleted.", "danger")
+    except Exception as e:
+        print(f"Error deleting request: {e}", file=sys.stderr)
+        flash("Failed to delete the request.", "danger")
+    finally:
+        cursor.close()
+        db.close()
 
-    cursor.close()
-    conn.close()
-
-    flash("Request has been deleted.", "danger")
-    return redirect(url_for('landing'))  
+    return redirect(url_for('landing')) 
 
 
 # ---------------- LOGOUT ----------------
@@ -457,7 +609,7 @@ def admin_dashboard():
 
     cursor.execute("""
         SELECT r.id, u.username, r.request_type, r.item, r.quantity, r.date_needed,
-               r.purpose, r.location_from, r.location_to, r.date_requested
+                r.purpose, r.location_from, r.location_to, r.date_requested
         FROM requests r
         JOIN users u ON r.user_id = u.id
         WHERE r.status = 'Pending'
@@ -467,10 +619,10 @@ def admin_dashboard():
 
     cursor.execute("""
         SELECT r.id, u.username, r.request_type, r.item, r.quantity, r.date_needed,
-               r.purpose, r.location_from, r.location_to, r.date_requested, r.status
+                r.purpose, r.location_from, r.location_to, r.date_requested, r.status
         FROM requests r
         JOIN users u ON r.user_id = u.id
-        WHERE r.status IN ('Approved', 'Rejected')
+        WHERE r.status IN ('Approved', 'Rejected', 'Cancelled')
         ORDER BY r.date_requested DESC
     """)
     history_requests = cursor.fetchall()
