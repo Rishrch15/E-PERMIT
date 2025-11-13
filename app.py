@@ -450,8 +450,7 @@ def landing():
         pending_requests=pending_requests,
         history_requests=history_requests
     )
-
-
+#PS: Once the request is submitted, the page needs to refresh so that it will appear in the View Pending section.
 # ---------------- ADD REQUEST ----------------
 @app.route('/add_request', methods=['POST'])
 def add_request():
