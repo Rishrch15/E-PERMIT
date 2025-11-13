@@ -237,42 +237,6 @@ def verify_otp():
         return render_template('login.html') 
 
 
-# ---------------- LOGIN with hashing ----------------
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """Handles user login and session creation."""
-    if request.method == 'GET' and 'otp_user_data' in session:
-        return redirect(url_for('verify_otp'))
-
-    if request.method == 'GET':
-        return render_template('login.html')
-
-    db = get_db_connection()
-    if not db:
-        flash("Login failed due to a database error.", "danger")
-        return render_template('login.html')
-
-    cursor = db.cursor()
-    email = request.form['email']
-    password = request.form['password']  
-
-    cursor.execute("SELECT id, username, password FROM users WHERE email=%s", (email,))
-    user = cursor.fetchone()    
-    cursor.close()
-    db.close()
-
-    if user and bcrypt.check_password_hash(user[2], password):
-        session['user_id'] = user[0]
-        session['username'] = user[1]
-        flash(f"Welcome back, {user[1]}!", "success")
-
-        if user[0] == ADMIN_USER_ID:
-            return redirect(url_for('admin_dashboard'))
-        else:
-            return redirect(url_for('landing'))
-    else:
-        flash("Invalid email or password.", "danger")
-        return render_template('login.html')
 
 # ---------------- FORGOT PASSWORD ----------------
 
