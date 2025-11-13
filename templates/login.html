@@ -8,23 +8,24 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-            text-decoration: none; 
+            text-decoration: none;
             list-style: none;
         }
-        body {
-            display: flex; 
-            justify-content: center; 
+
+        body{
+            display: flex;
+            justify-content: center;
             align-items: center;
-            flex-direction: column; 
             min-height: 100vh;
+            padding-top: 80px; 
             background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
         }
-        
+
         .header {
             position: fixed; 
             top: 0; 
@@ -49,7 +50,7 @@
         }
 
         .header-logo img {
-            height: 40px; 
+            height: 50px; 
             width: auto; 
             margin-right: 12px; 
         }
@@ -68,15 +69,11 @@
         
         .header-nav .login-btn-header {
             background-color: #ff1500; 
-            
             color: white;
             padding: 8px 18px; 
-            
             border-radius: 5px; 
-            
             font-weight: 600;
             margin-left: 20px; 
-            
             transition: background-color 0.3s;
             border-bottom: none !important; 
         }
@@ -89,7 +86,7 @@
             width: 850px;
             height: 550px;
             background: #fff;
-            margin: 20px;
+            margin: 20px 20px 20px 50px; 
             border-radius: 30px;
             box-shadow: 0 0 30px rgba(0, 0, 0, .2);
             overflow: hidden;
@@ -104,6 +101,7 @@
         }
         form { 
             width: 100%; 
+            max-width: 300px;
         }
         
         .form-box {
@@ -118,7 +116,7 @@
             align-items: center;
             color: #333; 
             text-align: center; 
-            padding: 40px;
+            padding: 20px;
             z-index: 1; 
             transition: .6s ease-in-out 1.2s, visibility 0s 1s;
         }
@@ -234,7 +232,6 @@
             height: 48px; 
             background: #ff1500;
             border-radius: 8px;
-             
             box-shadow: 0 0 10px rgba(0, 0, 0, .1);
             border: none; 
             cursor: pointer; 
@@ -261,7 +258,7 @@
         }
         .container.active .toggle-box::before { 
             left: 50%;
-         }
+           }
         
         .toggle-panel {
             position: absolute;
@@ -376,9 +373,19 @@
         }
 
         @media screen and (max-width: 650px) {
+            body {
+                padding-top: 70px; 
+            }
+            .header {
+                padding: 15px 20px;
+            }
+            .header-nav a:not(.login-btn-header) {
+                display: none; 
+            }
             .container { 
-                height: calc(100vh - 100px); 
+                margin: 0 5% 20px 5%; 
                 width: 90%; 
+                height: calc(100vh - 90px); 
             }
             .form-box { 
                 bottom: 0; 
@@ -442,15 +449,15 @@
 <body>
 
     <header class="header">
-    <a href="/" class="header-logo d-flex align-items-center">
-        <img src="{{ url_for('static', filename='WEBLOGO.png') }}" alt="e-PERMIT Logo" class="logo-img me-2">
-        <span>e-PERMIT</span>
-    </a>
-    <nav class="header-nav">
-        <a href="/">Home</a>
-        <a href="{{ url_for('login') }}" class="login-btn-header active">Log In</a>
-    </nav>
-</header>
+        <a href="/" class="header-logo">
+            <img src="{{ url_for('static', filename='WEBLOGO.png') }}" alt="e-PERMIT Logo">
+            <span>e-PERMIT</span>
+        </a>
+        <nav class="header-nav">
+            <a href="/">Home</a>
+            <a href="{{ url_for('login') }}" class="login-btn-header active">Log In</a>
+        </nav>
+    </header>
     <div class="flash-messages">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}

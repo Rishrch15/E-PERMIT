@@ -6,7 +6,7 @@ from flask_bcrypt import Bcrypt
 import random
 import smtplib
 from email.mime.text import MIMEText
-import uuid # For secure token generation
+import uuid 
 
 app = Flask(__name__)
 app.secret_key = 'CCIS.123'
@@ -29,7 +29,6 @@ EMAIL_PASSWORD = 'bygo dfwz vgfg fwav'
 
 
 def get_db_connection():
-    """Establishes a connection to the MySQL database."""
     try:
         return mysql.connector.connect(**DB_CONFIG, buffered=True)
     except mysql.connector.Error as err:
@@ -46,7 +45,6 @@ def initialize_db():
 
     cursor = db.cursor()
 
-    # Users Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -56,7 +54,6 @@ def initialize_db():
         )
     """)
 
-    # User Profile Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS user_profile (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -67,7 +64,6 @@ def initialize_db():
         )
     """)
 
-    # Requests Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS requests (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -85,7 +81,6 @@ def initialize_db():
         )
     """)
     
-    # Password Reset Tokens Table (NEW)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS password_reset_tokens (
             token VARCHAR(100) PRIMARY KEY,
@@ -106,11 +101,9 @@ initialize_db()
 # ---------------- EMAIL UTILITIES ----------------
 
 def generate_otp():
-    """Generates a simple 6-digit numeric OTP."""
     return str(random.randint(100000, 999999))
 
 def send_otp_email(recipient_email, otp_code):
-    """Sends the OTP code to the recipient's email."""
     try:
         msg = MIMEText(f"Your E-Permit Registration Code is: {otp_code}\n\nThis code expires shortly. Do not share it.")
         msg['Subject'] = 'E-Permit Email Verification Code'
@@ -118,7 +111,7 @@ def send_otp_email(recipient_email, otp_code):
         msg['To'] = recipient_email
 
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        server.starttls() # Secure the connection
+        server.starttls() 
         server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         server.sendmail(EMAIL_ADDRESS, recipient_email, msg.as_string())
         server.quit()
@@ -128,9 +121,7 @@ def send_otp_email(recipient_email, otp_code):
         return False
 
 def send_reset_email(recipient_email, reset_token):
-    """Sends a password reset link to the recipient's email."""
     try:
-        # _external=True generates a full URL (needed for email links)
         reset_url = url_for('reset_password', token=reset_token, _external=True)
 
         msg = MIMEText(f"You requested a password reset for your E-Permit account. "
