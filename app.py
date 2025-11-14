@@ -24,8 +24,8 @@ ADMIN_USER_ID = 3
 
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
-EMAIL_ADDRESS = 'irocha.k12152432@umak.edu.ph' 
-EMAIL_PASSWORD = 'bygo dfwz vgfg fwav'
+EMAIL_ADDRESS = 'epermit.management@gmail.com' 
+EMAIL_PASSWORD = 'pdif tylt qqqs phgn'
 
 
 def get_db_connection():
