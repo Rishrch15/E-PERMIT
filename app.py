@@ -25,7 +25,7 @@ ADMIN_USER_ID = 3
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
 EMAIL_ADDRESS = 'epermit.management@gmail.com' 
-EMAIL_PASSWORD = 'pdif tylt qqqs phgn'
+EMAIL_PASSWORD = 'asfl wacs igti jikh'
 
 
 def get_db_connection():
