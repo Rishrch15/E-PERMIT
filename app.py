@@ -6,7 +6,8 @@ from flask_bcrypt import Bcrypt
 import random
 import smtplib
 from email.mime.text import MIMEText
-import uuid 
+import uuid
+from flask import jsonify
 
 app = Flask(__name__)
 app.secret_key = 'CCIS.123'
@@ -452,35 +453,42 @@ def landing():
     )
 #PS: Once the request is submitted, the page needs to refresh so that it will appear in the View Pending section.
 # ---------------- ADD REQUEST ----------------
+# ---------------- ADD REQUEST ----------------
 @app.route('/add_request', methods=['POST'])
 def add_request():
     """Handles the submission of a new borrow or transfer request."""
+
+    # Check if user is logged in; if not, redirect to login page
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
+    # Establish database connection
     db = get_db_connection()
     if not db:
         flash("Failed to submit request: Database connection error.", "danger")
         return redirect(url_for('landing'))
 
     cursor = db.cursor()
-    user_id = session['user_id']
-    request_type = request.form.get('requestType')
+    user_id = session['user_id'] 
+    request_type = request.form.get('requestType')  
 
     item = quantity = date_needed = purpose = location_from = location_to = None
 
+    # ---------------- HANDLE BORROW REQUEST ----------------
     if request_type == 'Borrow':
-        item = request.form.get('borrowItem')
-        quantity_str = request.form.get('borrowQuantity')
-        date_needed = request.form.get('borrowDate')
-        purpose = request.form.get('borrowEvent')
+        item = request.form.get('borrowItem')              
+        quantity_str = request.form.get('borrowQuantity')  
+        date_needed = request.form.get('borrowDate')       
+        purpose = request.form.get('borrowEvent')        
 
+    # ---------------- HANDLE TRANSFER REQUEST ----------------
     elif request_type == 'Transfer':
-        item = request.form.get('transferEquipment')
+        item = request.form.get('transferEquipment')     
         quantity_str = request.form.get('transferQuantity')
-        date_needed = request.form.get('transferDate')
-        location_from = request.form.get('transferFrom')
-        location_to = request.form.get('transferTo')
+        date_needed = request.form.get('transferDate')    
+        purpose = request.form.get('transferPurpose')
+        location_from = request.form.get('transferFrom')  
+        location_to = request.form.get('transferTo')     
 
     else:
         cursor.close()
@@ -488,6 +496,7 @@ def add_request():
         flash("Invalid request type submitted.", "danger")
         return redirect(url_for('landing'))
 
+    # ---------------- VALIDATE REQUIRED FIELDS ----------------
     if not item or not date_needed:
         cursor.close()
         db.close()
@@ -499,6 +508,7 @@ def add_request():
     except ValueError:
         quantity = 1
 
+    # Validate date format
     try:
         datetime.strptime(date_needed, '%Y-%m-%d')
     except ValueError:
@@ -507,6 +517,7 @@ def add_request():
         flash("Invalid date format submitted for 'Date Needed'.", "danger")
         return redirect(url_for('landing'))
 
+    # ---------------- INSERT REQUEST INTO DATABASE ----------------
     try:
         cursor.execute("""
             INSERT INTO requests
@@ -523,6 +534,7 @@ def add_request():
         db.close()
 
     return redirect(url_for('landing'))
+
 
 @app.route('/cancel_request/<int:req_id>', methods=['POST'])
 def cancel_request(req_id):
@@ -568,6 +580,62 @@ def delete_request(req_id):
         db.close()
 
     return redirect(url_for('landing')) 
+from flask import jsonify
+
+@app.route('/edit_request', methods=['POST'])
+def edit_request():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "message": "Invalid payload."}), 400
+
+        req_id = data.get('id')
+        req_type = data.get('request_type', '')
+        item = data.get('item', '')
+        quantity = data.get('quantity', 1)
+        date_needed = data.get('date_needed', None)
+        purpose = data.get('purpose', '')
+        location_from = data.get('location_from', '')
+        location_to = data.get('location_to', '')
+
+        if not req_id or not item or not date_needed:
+            return jsonify({"success": False, "message": "Missing required fields."}), 400
+
+        db = get_db_connection()
+        if not db:
+            return jsonify({"success": False, "message": "Database connection error."}), 500
+
+        cursor = db.cursor()
+
+        cursor.execute("SELECT status FROM requests WHERE id = %s", (req_id,))
+        row = cursor.fetchone()
+        if not row:
+            cursor.close()
+            db.close()
+            return jsonify({"success": False, "message": "Request not found."}), 404
+
+        status = row[0]
+        if status != 'Pending':
+            cursor.close()
+            db.close()
+            return jsonify({"success": False, "message": "Only pending requests can be edited."}), 403
+
+        update_query = """
+            UPDATE requests
+            SET item=%s, quantity=%s, date_needed=%s, purpose=%s, location_from=%s, location_to=%s
+            WHERE id=%s
+        """
+        cursor.execute(update_query, (item, int(quantity), date_needed, purpose, location_from, location_to, req_id))
+        db.commit()
+
+        cursor.close()
+        db.close()
+
+        return jsonify({"success": True, "message": "Request updated successfully."})
+
+    except Exception as e:
+        print(f"Error in edit_request: {e}", file=sys.stderr)
+        return jsonify({"success": False, "message": "An unexpected server error occurred."}), 500
 
 
 # ---------------- LOGOUT ----------------

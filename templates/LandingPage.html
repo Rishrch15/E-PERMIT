@@ -2,7 +2,7 @@
 <html lang="en" data-bs-theme="auto">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=1200">
     <title>E-Permit | Request Application</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='WEBLOGO.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -224,53 +224,68 @@
         </div>
     </div>
 
-    <div id="transferSection" class="form-section">
-        <h4><i class="bi bi-arrows-expand me-2"></i>Permit to Transfer Details</h4>
-        <div class="row">
-            <div class="col-md-8 form-group-custom">
-                <label for="transferEquipment" class="form-label">Equipment to Transfer</label>
-                <select id="transferEquipment" name="transferEquipment" class="form-select" data-required-group="transfer" required>
-                    <option value="">Select Equipment</option>
-                     <option value="Desktop PC Unit">Desktop PC Unit</option>
-                    <option value="Office Desk">Office Desk</option>
-                    <option value="Filing Cabinet">Filing Cabinet (4-Drawer)</option>
-                    <option value="Table">Table</option>
-                    </select>
-            </div>
-            <div class="col-md-4 form-group-custom">
-                <label for="transferQuantity" class="form-label">Quantity</label>
-                <input type="number" id="transferQuantity" name="transferQuantity" class="form-control" min="1" max="99" value="1" data-required-group="transfer" required>
-            </div>
-        </div>
-        <div class="form-group-custom">
-            <label for="transferDate" class="form-label">Scheduled Transfer Date</label>
-            <input type="date" id="transferDate" name="transferDate" class="form-control" data-required-group="transfer" required>
-        </div>
-        <div class="row">
-            <div class="col-md-6 form-group-custom">
-                <label for="transferFrom" class="form-label">Transfer From Location</label>
-                <select id="transferFrom" name="transferFrom" class="form-select" data-required-group="transfer" required>
-                    <option value="">Select Origin</option>
-                    <option value="Oval">OVAL</option>
-                    <option value="Admin Office">Admin Office</option>
-                    <option value="BLDG 1">BLDG 1</option>
-                    <option value="HPSB">HPSB</option>
+<div id="transferSection" class="form-section">
+    <h4><i class="bi bi-arrows-expand me-2"></i>Permit to Transfer Details</h4>
 
-                </select>
-            </div>
-            <div class="col-md-6 form-group-custom">
-                <label for="transferTo" class="form-label">Transfer To Location</label>
-                <select id="transferTo" name="transferTo" class="form-select" data-required-group="transfer" required>
-                    <option value="">Select Destination</option>
-                    <option value="">Select Destination</option>
-                    <option value="Oval">OVAL</option>
-                    <option value="Admin Office">Admin Office</option>
-                    <option value="BLDG 1">BLDG 1</option>
-                    <option value="HPSB">HPSB</option>
-                </select>
-            </div>
+    <div class="row">
+        <div class="col-md-8 form-group-custom">
+            <label for="transferEquipment" class="form-label">Equipment to Transfer</label>
+            <select id="transferEquipment" name="transferEquipment" class="form-select" data-required-group="transfer" required>
+                <option value="">Select Equipment</option>
+                <option value="Desktop PC Unit">Desktop PC Unit</option>
+                <option value="Office Desk">Office Desk</option>
+                <option value="Filing Cabinet">Filing Cabinet (4-Drawer)</option>
+                <option value="Table">Table</option>
+            </select>
+        </div>
+
+        <div class="col-md-4 form-group-custom">
+            <label for="transferQuantity" class="form-label">Quantity</label>
+            <input type="number" id="transferQuantity" name="transferQuantity" class="form-control" 
+                   min="1" max="99" value="1" data-required-group="transfer" required>
         </div>
     </div>
+
+   <div id="transferSection" class="form-section">
+    <div class="form-group-custom">
+        <label for="transferPurpose" class="form-label">Purpose / Reason for Transfer</label>
+        <input type="text" id="transferPurpose" name="transferPurpose" class="form-control" 
+               placeholder="e.g., Office Relocation, Department Reorganization" data-required-group="transfer" required>
+        <div class="invalid-feedback">Please enter the purpose for the transfer.</div>
+    </div>
+    </div>
+
+    <div class="form-group-custom">
+        <label for="transferDate" class="form-label">Scheduled Transfer Date</label>
+        <input type="date" id="transferDate" name="transferDate" class="form-control" 
+               data-required-group="transfer" required>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 form-group-custom">
+            <label for="transferFrom" class="form-label">Transfer From Location</label>
+            <select id="transferFrom" name="transferFrom" class="form-select" data-required-group="transfer" required>
+                <option value="">Select Origin</option>
+                <option value="Oval">OVAL</option>
+                <option value="Admin Office">Admin Office</option>
+                <option value="BLDG 1">BLDG 1</option>
+                <option value="HPSB">HPSB</option>
+            </select>
+        </div>
+
+        <div class="col-md-6 form-group-custom">
+            <label for="transferTo" class="form-label">Transfer To Location</label>
+            <select id="transferTo" name="transferTo" class="form-select" data-required-group="transfer" required>
+                <option value="">Select Destination</option>
+                <option value="Oval">OVAL</option>
+                <option value="Admin Office">Admin Office</option>
+                <option value="BLDG 1">BLDG 1</option>
+                <option value="HPSB">HPSB</option>
+            </select>
+        </div>
+    </div>
+</div>
+
     
     <button type="submit" class="btn btn-primary w-100 mt-4" name="submit">
         <i class="bi bi-send-fill me-2"></i>
@@ -320,22 +335,50 @@
                                         <td>{{ req[4] }}</td>
                                         <td>{{ req[9].strftime('%Y-%m-%d %I:%M %p') }}</td>
                                         <td><span class="badge bg-warning text-dark">{{ req[8] }}</span></td>
-                                        <td>
-                                            <div class="d-flex gap-1">
-                                                <button class="btn btn-sm btn-outline-info"
-                                                        onclick="showMessage('Request Details', 'Details for Request ID: {{ req[0] }} (Type: {{ req[1] }}).', 'info')">
-                                                    <i class="bi bi-eye"></i> View
-                                                </button>
+                                       <td>
+                                       <div class="d-flex gap-1">
+                                        <button class="btn btn-sm btn-admin-view"
+                                                onclick="showMessage(
+                                                    'Request Details #{{ req[0] }}', 
+                                                    'Request Type: {{ req[1] }}<br>' +
+                                                    'Item / Equipment: {{ req[2] }}<br>' +
+                                                    'Quantity: {{ req[3] }}<br>' +
+                                                    'Date Needed: {{ req[4] }}<br>' +
+                                                    '<hr>' +
+                                                    'Purpose/Event: {{ req[5] or 'N/A' }}<br>' +
+                                                    'Location From: {{ req[6] or 'N/A' }}<br>' +
+                                                    'Location To: {{ req[7] or 'N/A' }}<br>' +
+                                                    'Status: {{ req[8] }}<br>' +
+                                                    'Date Submitted: {{ req[9].strftime('%Y-%m-%d %I:%M %p') }}', 
+                                                    'info'
+                                                )">
+                                            <i class="bi bi-eye"></i> View
+                                        </button>
 
-                                                <form method="POST"
-                                                    action="{{ url_for('cancel_request', req_id=req[0]) }}"
-                                                    onsubmit="return confirm('Are you sure you want to cancel this request?');"
-                                                    style="display:inline;">
-                                                    <button type="submit" class="btn btn-sm btn-outline-warning">
-                                                        <i class="bi bi-x-circle"></i> Cancel
-                                                    </button>
-                                                </form>
-                                            </div>
+                                       <button class="btn btn-sm btn-outline-primary"
+                                                onclick="openEditPendingModal({
+                                            id: {{ req[0] }},
+                                            type: '{{ req[1] if req[1] else '' }}',
+                                            item: '{{ req[2] if req[2] else '' }}',
+                                            quantity: {{ req[3] }},
+                                            date_needed: '{{ req[4] if req[4] else '' }}',
+                                            purpose: '{{ req[5] if req[5] else '' }}',
+                                            location_from: '{{ req[6] if req[6] else '' }}',
+                                            location_to: '{{ req[7] if req[7] else '' }}'
+                                        })"
+
+                                        <i class="bi bi-pencil-square"></i> Edit
+                                            </button>
+
+                                            <form method="POST"
+                                                action="{{ url_for('cancel_request', req_id=req[0]) }}"
+                                                onsubmit="return confirm('Are you sure you want to cancel this request?');"
+                                                style="display:inline;">
+                                            <button type="submit" class="btn btn-sm btn-outline-warning">
+                                                <i class="bi bi-x-circle"></i> Cancel
+                                            </button>
+                                            </form>
+                                        </div>
                                         </td>
                                     </tr>
                                     {% else %}
@@ -399,8 +442,21 @@
                 <td>
                     <div class="d-flex gap-1">
                         <button class="btn btn-sm btn-outline-info"
-                            onclick="showMessage('Request Details', 'History Details for Request ID: {{ req[0] }} (Type: {{ req[1] }}).', 'info')">
-                            <i class="bi bi-eye"></i> View
+                    onclick="showMessage(
+                                    'Request Details #{{ req[0] }}', 
+                                    'Request Type: {{ req[1] }}<br>' +
+                                    'Item / Equipment: {{ req[2] }}<br>' +
+                                    'Quantity: {{ req[3] }}<br>' +
+                                    'Date Needed: {{ req[4] }}<br>' +
+                                    '<hr>' +
+                                    'Purpose/Event: {{ req[5] or 'N/A' }}<br>' +
+                                    'Location From: {{ req[6] or 'N/A' }}<br>' +
+                                    'Location To: {{ req[7] or 'N/A' }}<br>' +
+                                    'Status: {{ req[8] }}<br>' +
+                                    'Date Submitted: {{ req[9].strftime('%Y-%m-%d %I:%M %p') }}', 
+                                    'info'
+                                )">                            
+                        <i class="bi bi-eye"></i> View
                         </button>
 
                         <form method="POST"
@@ -510,6 +566,123 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="editPendingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Edit Pending Request</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="editPendingForm" class="needs-validation" novalidate>
+                    <input type="hidden" id="editReqId" name="id">
+                    <input type="hidden" id="editReqType" name="request_type">
+
+                    <div class="mb-3">
+                        <label class="form-label">Request Type</label>
+                        <input type="text" id="displayReqType" class="form-control" readonly>
+                    </div>
+
+                    <div id="editBorrowSection" class="edit-section">
+                        <h6 class="text-primary"><i class="bi bi-box-seam-fill me-2"></i>Permit to Borrow Details</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Item to Borrow</label>
+                                <select id="editBorrowItem" name="item" class="form-select" required>
+                                    <option value="">Select Item</option>
+                                    <option value="Projector A">Projector</option>
+                                    <option value="Laptop - Dept 1">Laptop</option>
+                                    <option value="Extension Cord">Extension Cord</option>
+                                    <option value="Hand Tools">Hand Tools</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Quantity</label>
+                                <input type="number" id="editBorrowQuantity" name="quantity" class="form-control" min="1" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Date Needed</label>
+                                <input type="date" id="editBorrowDate" name="date_needed" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label">Event Name / Purpose</label>
+                            <input type="text" id="editBorrowPurpose" name="purpose" class="form-control" placeholder="Event or purpose" required>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label">Usage Location</label>
+                            <select id="editBorrowLocation" name="location_from" class="form-select" required>
+                                <option value="">Select Location</option>
+                                <option value="OVAL">OVAL</option>
+                                <option value="HPSB BASKETBALL COURT">HPSB BASKETBALL COURT</option>
+                                <option value="HPSB VOLLEYBALL COURT">HPSB VOLLEYBALL COURT</option>
+                                <option value="CAFETERIA BASEMENT">CAFETERIA BASEMENT</option>
+                                <option value="CAFETERIA HPSB 11TH FLOOR">CAFETERIA HPSB 11TH FLOOR</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="editTransferSection" class="edit-section">
+                        <h6 class="text-primary"><i class="bi bi-arrows-expand me-2"></i>Permit to Transfer Details</h6>
+
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                <label class="form-label">Equipment to Transfer</label>
+                <input type="text" id="editTransferEquipment" name="item" class="form-control" required>
+              </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Quantity</label>
+                                <input type="number" id="editTransferQuantity" name="quantity" class="form-control" min="1" required>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label class="form-label">Purpose / Reason for Transfer</label>
+                            <input type="text" id="editTransferPurpose" name="purpose" class="form-control" placeholder="Purpose / Reason for Transfer" required>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label">Scheduled Transfer Date</label>
+                            <input type="date" id="editTransferDate" name="date_needed" class="form-control" required>
+                        </div>
+
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-6">
+                                <label class="form-label">Transfer From Location</label>
+                                <select id="editTransferFrom" name="location_from" class="form-select" required>
+                                    <option value="">Select Origin</option>
+                                    <option value="Oval">OVAL</option>
+                                    <option value="Admin Office">Admin Office</option>
+                                    <option value="BLDG 1">BLDG 1</option>
+                                    <option value="HPSB">HPSB</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Transfer To Location</label>
+                                <select id="editTransferTo" name="location_to" class="form-select" required>
+                                    <option value="">Select Destination</option>
+                                    <option value="Oval">OVAL</option>
+                                    <option value="Admin Office">Admin Office</option>
+                                    <option value="BLDG 1">BLDG 1</option>
+                                    <option value="HPSB">HPSB</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="saveEditBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <footer>
         © IRISH ROCHA 2025
@@ -569,6 +742,111 @@ function showMessage(title, body, type = 'info') {
     customModal.show();
 }
 
+function openEditPendingModal(req) {
+    const id = req.id;
+    const type = req.type || '';
+    const item = req.item || '';
+    const quantity = req.quantity || 1;
+    const date_needed = req.date_needed || '';
+    const purpose = req.purpose || '';
+    const location_from = req.location_from || '';
+    const location_to = req.location_to || '';
+
+    document.getElementById('editReqId').value = id;
+    document.getElementById('editReqType').value = type;
+    document.getElementById('displayReqType').value = type;
+
+    document.getElementById('editBorrowItem').value = (type === 'Borrow') ? item : '';
+    document.getElementById('editBorrowQuantity').value = (type === 'Borrow') ? quantity : 1;
+    document.getElementById('editBorrowDate').value = (type === 'Borrow') ? date_needed : '';
+    document.getElementById('editBorrowPurpose').value = (type === 'Borrow') ? purpose : '';
+    document.getElementById('editBorrowLocation').value = (type === 'Borrow') ? location_from : '';
+
+    document.getElementById('editTransferEquipment').value = (type === 'Transfer') ? item : '';
+    document.getElementById('editTransferQuantity').value = (type === 'Transfer') ? quantity : 1;
+    document.getElementById('editTransferDate').value = (type === 'Transfer') ? date_needed : '';
+    document.getElementById('editTransferFrom').value = (type === 'Transfer') ? location_from : '';
+    document.getElementById('editTransferTo').value = (type === 'Transfer') ? location_to : '';
+
+    if (type === 'Borrow') {
+        document.getElementById('editBorrowSection').style.display = 'block';
+        document.getElementById('editTransferSection').style.display = 'none';
+    } else if (type === 'Transfer') {
+        document.getElementById('editBorrowSection').style.display = 'none';
+        document.getElementById('editTransferSection').style.display = 'block';
+    } else {
+        document.getElementById('editBorrowSection').style.display = 'none';
+        document.getElementById('editTransferSection').style.display = 'none';
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const bdate = document.getElementById('editBorrowDate');
+    const tdate = document.getElementById('editTransferDate');
+    if (bdate) bdate.min = today;
+    if (tdate) tdate.min = today;
+
+    const modalEl = document.getElementById('editPendingModal');
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+}
+
+document.getElementById('saveEditBtn').addEventListener('click', () => {
+    const id = document.getElementById('editReqId').value;
+    const type = document.getElementById('editReqType').value;
+
+    let payload = { id: id, request_type: type };
+
+    if (type === 'Borrow') {
+        payload.item = document.getElementById('editBorrowItem').value.trim();
+        payload.quantity = parseInt(document.getElementById('editBorrowQuantity').value) || 1;
+        payload.date_needed = document.getElementById('editBorrowDate').value;
+        payload.purpose = document.getElementById('editBorrowPurpose').value.trim();
+        payload.location_from = document.getElementById('editBorrowLocation').value;
+        payload.location_to = ''; 
+    } else if (type === 'Transfer') {
+        payload.item = document.getElementById('editTransferEquipment').value.trim();
+        payload.quantity = parseInt(document.getElementById('editTransferQuantity').value) || 1;
+        payload.date_needed = document.getElementById('editTransferDate').value;
+        payload.purpose = ''; 
+        payload.location_from = document.getElementById('editTransferFrom').value;
+        payload.location_to = document.getElementById('editTransferTo').value;
+    } else {
+        showMessage('Error', 'Unknown request type.', 'danger');
+        return;
+    }
+
+    if (!payload.item || !payload.date_needed) {
+        showMessage('Validation Error', 'Please complete required fields.', 'warning');
+        return;
+    }
+
+    const saveBtn = document.getElementById('saveEditBtn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+
+    fetch('/edit_request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(resp => resp.json())
+    .then(data => {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Changes';
+        if (data && data.success) {
+            showMessage('Updated', data.message || 'Request updated successfully.', 'success');
+            setTimeout(() => location.reload(), 900);
+        } else {
+            showMessage('Error', data.message || 'Failed to update request.', 'danger');
+        }
+    })
+    .catch(err => {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Changes';
+        showMessage('Error', 'An unexpected error occurred. Please try again.', 'danger');
+        console.error(err);
+    });
+});
 
 function showConfirm(title, body, callback) {
     modalHeader.className = `modal-header p-3 rounded-top-lg bg-danger text-white`; 
